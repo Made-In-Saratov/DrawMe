@@ -1,6 +1,7 @@
 {
   "env": {
     "browser": true,
+    "node": true,
     "es2021": true
   },
   "extends": [
@@ -8,7 +9,8 @@
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
     "plugin:@typescript-eslint/recommended",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
+    "plugin:import/typescript"
   ],
   "overrides": [
   ],
@@ -17,7 +19,9 @@
     "sourceType": "module"
   },
   "plugins": [
-    "react"
+    "react",
+    "@typescript-eslint",
+    "import"
   ],
   "rules": {
     "react/react-in-jsx-scope": "off",
@@ -35,6 +39,7 @@
         "argsIgnorePattern": "^_"
       }
     ],
+    "@typescript-eslint/no-var-requires": "off",
     "no-param-reassign": [
       "error",
       {
@@ -56,6 +61,43 @@
       "warn",
       {
         "namedComponents": "function-declaration"
+      }
+    ],
+    "import/no-named-as-default-member": "off",
+    "import/prefer-default-export": "off",
+    "import/order": [
+        "error",
+        {
+          "groups": ["builtin", "external", "internal", "sibling"],
+          "pathGroups": [
+            {
+              "pattern": "react",
+              "group": "builtin",
+              "position": "before"
+            },
+            {
+              "pattern": "src/**",
+              "group": "internal",
+              "position": "before"
+            }
+          ],
+          "pathGroupsExcludedImportTypes": ["react"],
+          "newlines-between": "always",
+          "alphabetize": {
+            "order": "asc",
+            "caseInsensitive": true
+          }
+        }
+      ],
+    "@typescript-eslint/no-restricted-imports": [
+      "error",
+      {
+        "patterns": [
+          {
+            "group": ["../*"],
+            "message": "Usage of relative parent imports is not allowed."
+          }
+        ]
       }
     ]
   }
