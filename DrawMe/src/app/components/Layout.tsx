@@ -10,6 +10,6 @@ export default function Layout({ children }: ILayoutProps) {
 
 const PageWrapper = styled.div`
   box-sizing: border-box;
-  min-height: calc(100vh - 70px);
+  min-height: 100vh;
   height: max-content;
 `
