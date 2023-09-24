@@ -1,6 +1,8 @@
 const path = require("path")
 
+const isDevelopment = process.env.NODE_ENV === "development"
 const CopyPlugin = require("copy-webpack-plugin")
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 
 module.exports = {
   entry: path.resolve("src", "index.tsx"),
@@ -42,11 +44,19 @@ module.exports = {
         loader: "url-loader",
         options: { limit: false },
       },
+      {
+        test: /\.(sa|sc|c)ss$/, // styles files
+        use: ["style-loader", "css-loader", "sass-loader"],
+      },
     ],
   },
   plugins: [
     new CopyPlugin({
       patterns: [{ from: "public" }],
     }),
+    new MiniCssExtractPlugin({
+      filename: isDevelopment ? '[name].css' : '[name].[hash].css',
+      chunkFilename: isDevelopment ? '[id].css' : '[id].[hash].css'
+    })
   ],
 }
