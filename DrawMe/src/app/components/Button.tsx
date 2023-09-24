@@ -5,7 +5,7 @@ import { text16Medium } from "@/utils/fonts"
 type ButtonType = "primary" | "secondary"
 
 interface IButtonProps {
-  "data-type"?: ButtonType
+  "data-type": ButtonType,
 }
 
 const Button = styled.button<IButtonProps>`
