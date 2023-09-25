@@ -1,8 +1,9 @@
 const path = require("path")
 
-const isDevelopment = process.env.NODE_ENV === "development"
 const CopyPlugin = require("copy-webpack-plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+
+const isDevelopment = process.env.NODE_ENV === "development"
 
 module.exports = {
   entry: path.resolve("src", "index.tsx"),
@@ -36,16 +37,12 @@ module.exports = {
         exclude: /node_modules/,
       },
       {
-        test: /\.css$/,
-        use: ["style-loader", "css-loader"],
-      },
-      {
         test: /\.(png|woff|woff2|eot|ttf|svg)$/,
         loader: "url-loader",
         options: { limit: false },
       },
       {
-        test: /\.(sa|sc|c)ss$/, // styles files
+        test: /\.(sa|sc|c)ss$/,
         use: ["style-loader", "css-loader", "sass-loader"],
       },
     ],
@@ -55,8 +52,8 @@ module.exports = {
       patterns: [{ from: "public" }],
     }),
     new MiniCssExtractPlugin({
-      filename: isDevelopment ? '[name].css' : '[name].[hash].css',
-      chunkFilename: isDevelopment ? '[id].css' : '[id].[hash].css'
-    })
+      filename: isDevelopment ? "[name].css" : "[name].[hash].css",
+      chunkFilename: isDevelopment ? "[id].css" : "[id].[hash].css",
+    }),
   ],
 }

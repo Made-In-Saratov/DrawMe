@@ -5,7 +5,7 @@ import { text16Medium } from "@/utils/fonts"
 type ButtonType = "primary" | "secondary"
 
 interface IButtonProps {
-  "data-type": ButtonType,
+  "data-type"?: ButtonType
 }
 
 const Button = styled.button<IButtonProps>`
@@ -23,7 +23,11 @@ const Button = styled.button<IButtonProps>`
 
   &[data-type="primary"] {
     border: none;
-    background: linear-gradient(250deg, #ce41f5 10%, #6801ef 90%);
+    background: linear-gradient(
+      250deg,
+      var(--magenta) 10%,
+      var(--light-blue) 90%
+    );
 
     color: #ffffff;
 
@@ -33,14 +37,14 @@ const Button = styled.button<IButtonProps>`
   }
 
   &[data-type="secondary"] {
-    border: 1.5px solid #ce41f5;
+    border: 1.5px solid var(--magenta);
     background: linear-gradient(
         250deg,
         rgba(206, 65, 245, 0.07) 10%,
         rgba(104, 1, 239, 0.07) 90%
       ),
       #ffffff;
-    color: #100041;
+    color: var(--dark-blue);
   }
 `
 
