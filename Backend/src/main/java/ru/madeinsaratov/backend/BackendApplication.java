@@ -7,7 +7,8 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @ComponentScan(
         basePackages = {
-                "ru.madeinsaratov.controllers"
+                "ru.madeinsaratov.controllers",
+                "ru.madeinsaratov.backend.config"
         }
 )
 public class BackendApplication {
