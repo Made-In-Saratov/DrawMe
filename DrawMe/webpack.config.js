@@ -45,6 +45,13 @@ module.exports = {
         test: /\.(sa|sc|c)ss$/,
         use: ["style-loader", "css-loader", "sass-loader"],
       },
+      {
+        test: /\.(png|jpe?g|svg|ppm)$/,
+        loader: 'file-loader',
+        options: {
+          name: 'assets/[name].[ext]',
+        }
+      }
     ],
   },
   plugins: [

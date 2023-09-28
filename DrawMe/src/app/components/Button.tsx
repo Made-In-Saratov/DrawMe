@@ -17,6 +17,7 @@ const Button = styled.button<IButtonProps>`
   box-sizing: border-box;
   padding: 11px 10px 12px 10px;
 
+  white-space: nowrap;
   text-align: center;
   ${text16Medium};
   transition: transform var(--transition-duration) var(--transition-function);

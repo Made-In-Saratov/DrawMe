@@ -2,13 +2,17 @@ import styled from "styled-components"
 
 import Button from "@/components/Button"
 import { header48, text16 } from "@/utils/fonts"
+import { Link } from "react-router-dom"
 
 export default function Home() {
+
   return (
     <Wrapper>
       <h1>Draw Me</h1>
       <p>Лучший редактор изображений для спортивного программирования.</p>
-      <Button data-type="primary">Загрузить файл</Button>
+      <Link to="/draw">
+        <Button data-type="primary">Загрузить файл</Button>
+      </Link>
     </Wrapper>
   )
 }
