@@ -1,18 +1,26 @@
+import { MouseEventHandler, useCallback } from "react"
+
+import { useNavigate } from "react-router-dom"
 import styled from "styled-components"
 
 import Button from "@/components/Button"
 import { header48, text16 } from "@/utils/fonts"
-import { Link } from "react-router-dom"
 
 export default function Home() {
+  const navigate = useNavigate()
+
+  const handleButtonClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
+    () => navigate("/draw"),
+    [navigate]
+  )
 
   return (
     <Wrapper>
       <h1>Draw Me</h1>
       <p>Лучший редактор изображений для спортивного программирования.</p>
-      <Link to="/draw">
-        <Button data-type="primary">Загрузить файл</Button>
-      </Link>
+      <Button data-type="primary" onClick={handleButtonClick}>
+        Загрузить файл
+      </Button>
     </Wrapper>
   )
 }

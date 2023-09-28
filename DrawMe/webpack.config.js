@@ -16,6 +16,7 @@ module.exports = {
   devServer: {
     port: 3001,
     static: "./dist",
+    historyApiFallback: true,
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],
@@ -45,13 +46,6 @@ module.exports = {
         test: /\.(sa|sc|c)ss$/,
         use: ["style-loader", "css-loader", "sass-loader"],
       },
-      {
-        test: /\.(png|jpe?g|svg|ppm)$/,
-        loader: 'file-loader',
-        options: {
-          name: 'assets/[name].[ext]',
-        }
-      }
     ],
   },
   plugins: [

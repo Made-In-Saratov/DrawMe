@@ -1,4 +1,4 @@
-  const family = {
+const family = {
   header: "Inter, Tahoma, sans-serif",
   regular: "Inter, Tahoma, sans-serif",
 }
