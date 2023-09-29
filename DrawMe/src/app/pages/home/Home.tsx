@@ -105,16 +105,17 @@ export default function Home() {
             )
 
           const pixels = uint8Array.slice(prevIndex + 1)
+          const requiredLength =
+            width * height * (isP6 ? 3 : 1) * (maxColorValue > 255 ? 2 : 1)
 
-          if (
-            (isP6 &&
-              pixels.length !==
-                width * height * 3 * (maxColorValue > 255 ? 2 : 1)) ||
-            (!isP6 &&
-              pixels.length !== width * height * (maxColorValue > 255 ? 2 : 1))
-          )
+          if (pixels.length !== requiredLength)
             throw new Error(
-              "Неверный формат файла. Неправильное количество пикселей"
+              `Неправильное количество пикселей. Ожидалось: ${requiredLength}, получено: ${pixels.length}`
+            )
+
+          if (pixels.some(pixel => pixel > maxColorValue))
+            throw new Error(
+              `Неверное значение цвета пикселя. Максимальное значение цвета: ${maxColorValue}`
             )
 
           setImage({
@@ -200,5 +201,5 @@ const ErrorMessage = styled.span`
   text-align: center;
 
   position: absolute;
-  bottom: -50px;
+  bottom: -46px;
 `
