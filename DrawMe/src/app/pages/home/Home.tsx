@@ -32,12 +32,6 @@ export default function Home() {
     event => {
       if (!event.target.files?.length) return
       const file = event.target.files[0]
-      if (!file.name.endsWith(".ppm") && !file.name.endsWith(".pgm")) {
-        setError(
-          "Неверный формат файла. Файл должен иметь расширение .ppm или .pgm"
-        )
-        return
-      }
 
       const reader = new FileReader()
 
@@ -58,11 +52,11 @@ export default function Home() {
               "Неверный формат файла. Неверно определён заголовок"
             )
 
-          let width: number = NaN,
-            height: number = NaN,
-            maxColorValue: number = NaN
+          let width = NaN,
+            height = NaN,
+            maxColorValue = NaN
 
-          let prevIndex: number = 0
+          let prevIndex = 0
 
           try {
             for (let i = 3; i < string.length; i++) {
@@ -203,3 +197,18 @@ const ErrorMessage = styled.span`
   position: absolute;
   bottom: -46px;
 `
+
+interface Tier1turik {
+  jim: string | number | "govno" | 1 | true | boolean | Array<string> | string[]
+  frozen: number
+  1: null | undefined
+  mouzsport?: string
+}
+
+function JimFAT(fat: string): string {
+  return fat
+}
+
+const JimNotFat = (fat: string) => ({
+  fat: 123,
+})
