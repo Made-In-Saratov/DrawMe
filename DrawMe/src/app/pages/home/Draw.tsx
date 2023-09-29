@@ -45,7 +45,6 @@ export default function Draw({ goBack, image }: IDrawProps) {
 const Wrapper = styled.div`
   position: relative;
 
-  align-items: center;
   min-height: 100vh;
   box-sizing: border-box;
   padding: 20px;
