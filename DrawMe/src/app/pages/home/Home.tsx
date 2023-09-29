@@ -9,10 +9,10 @@ import {
 import styled from "styled-components"
 
 import Draw from "./Draw"
-import { IImage } from "./types"
 
 import Button from "@/components/Button"
 import { header48, text14, text16 } from "@/utils/fonts"
+import { IImage } from "@/utils/types/image"
 
 export default function Home() {
   const input = useRef<HTMLInputElement>(null)
@@ -156,7 +156,7 @@ export default function Home() {
         <input
           type="file"
           ref={input}
-          accept=".ppm"
+          accept=".pgm,.ppm"
           onChange={handleFileUpload}
         />
       </UploadButton>

@@ -2,10 +2,10 @@ import { MouseEventHandler, useCallback, useEffect, useRef } from "react"
 
 import styled from "styled-components"
 
-import { IImage } from "./types"
-
 import Button from "@/components/Button"
 import Canvas from "@/components/Canvas"
+import useImageSave from "@/utils/hooks/useImageSave"
+import { IImage } from "@/utils/types/image"
 
 interface IDrawProps {
   goBack: () => void
@@ -14,6 +14,8 @@ interface IDrawProps {
 
 export default function Draw({ goBack, image }: IDrawProps) {
   const canvas = useRef<HTMLCanvasElement>(null)
+
+  const handleSaveClick = useImageSave(image)
 
   useEffect(() => {
     if (!canvas.current) return
@@ -61,7 +63,9 @@ export default function Draw({ goBack, image }: IDrawProps) {
         <Button data-type="secondary" onClick={handleLoadClick}>
           Загрузить другое
         </Button>
-        <Button data-type="primary">Скачать изображение</Button>
+        <Button data-type="primary" onClick={handleSaveClick}>
+          Скачать изображение
+        </Button>
       </ButtonWrapper>
     </Wrapper>
   )
