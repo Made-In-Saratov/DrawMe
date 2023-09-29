@@ -16,6 +16,7 @@ module.exports = {
   devServer: {
     port: 3001,
     static: "./dist",
+    historyApiFallback: true,
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx", ".json"],

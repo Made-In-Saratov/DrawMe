@@ -17,9 +17,12 @@ const Button = styled.button<IButtonProps>`
   box-sizing: border-box;
   padding: 11px 10px 12px 10px;
 
+  white-space: nowrap;
   text-align: center;
   ${text16Medium};
-  transition: transform var(--transition-duration) var(--transition-function);
+  transition:
+    transform 0.25s cubic-bezier(0, 0.61, 0, 1),
+    opacity 0.25s var(--transition-function);
 
   &[data-type="primary"] {
     border: none;
@@ -33,6 +36,7 @@ const Button = styled.button<IButtonProps>`
 
     &:hover {
       transform: scale(1.1);
+      opacity: 0.8;
     }
   }
 

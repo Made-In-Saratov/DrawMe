@@ -3,6 +3,14 @@ const family = {
   regular: "Inter, Tahoma, sans-serif",
 }
 
+export const text14 = {
+  fontFamily: family.regular,
+  fontSize: "14px",
+  fontStyle: "normal",
+  fontWeight: "500",
+  lineHeight: "15px",
+}
+
 export const text16 = {
   fontFamily: family.regular,
   fontSize: "16px",
