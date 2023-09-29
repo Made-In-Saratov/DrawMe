@@ -18,7 +18,7 @@ export default function Canvas({ image }: ICanvasProps) {
     canvas.current.width = width
     canvas.current.height = height
     const pixels = maxColorValue > 255 ? new Uint16Array(rawPixels) : rawPixels // convert to Uint16Array if maxColorValue > 255
-    const norm = 255 / maxColorValue // normalize values to range [0, 255]
+    const norm = 255 / maxColorValue // normalization coefficient
 
     // clamped values are integers in range [0, 255]
     const clampedArray = new Uint8ClampedArray(width * height * 4)
