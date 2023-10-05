@@ -24,6 +24,15 @@ const Button = styled.button<IButtonProps>`
     transform 0.25s cubic-bezier(0, 0.61, 0, 1),
     opacity 0.25s var(--transition-function);
 
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  > input {
+    display: none;
+  }
+
   &[data-type="primary"] {
     border: none;
     background: linear-gradient(
@@ -34,7 +43,7 @@ const Button = styled.button<IButtonProps>`
 
     color: #ffffff;
 
-    &:hover {
+    &:hover:not(:disabled) {
       transform: scale(1.1);
       opacity: 0.8;
     }

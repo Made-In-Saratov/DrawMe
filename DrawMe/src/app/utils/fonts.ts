@@ -27,6 +27,22 @@ export const text16Medium = {
   lineHeight: "17px",
 }
 
+export const text18 = {
+  fontFamily: family.regular,
+  fontSize: "18px",
+  fontStyle: "normal",
+  fontWeight: "500",
+  lineHeight: "19px",
+}
+
+export const text20 = {
+  fontFamily: family.regular,
+  fontSize: "20px",
+  fontStyle: "normal",
+  fontWeight: "500",
+  lineHeight: "21px",
+}
+
 export const header48 = {
   fontFamily: family.header,
   fontSize: "48px",

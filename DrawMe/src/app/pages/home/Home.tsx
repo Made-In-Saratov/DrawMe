@@ -1,166 +1,57 @@
-import {
-  ChangeEventHandler,
-  MouseEventHandler,
-  useCallback,
-  useRef,
-  useState,
-} from "react"
+import { useCallback } from "react"
 
 import styled from "styled-components"
 
-import Draw from "./Draw"
+import { TabT } from "./types"
 
 import Button from "@/components/Button"
 import { header48, text14, text16 } from "@/utils/fonts"
+import useImageUpload from "@/utils/hooks/useImageUpoad"
 import { IImage } from "@/utils/types/image"
 
-export default function Home() {
-  const input = useRef<HTMLInputElement>(null)
+interface IHomeProps {
+  setImage: (image: IImage | null) => void
+  setTab: (tab: TabT) => void
+}
 
-  const [isLoading, setIsLoading] = useState(false)
-
-  const [error, setError] = useState<string | null>(null)
-
-  const [image, setImage] = useState<IImage | null>(null)
-
-  const handleButtonClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
-    () => input.current?.click(),
-    [input]
-  )
-
-  const handleFileUpload = useCallback<ChangeEventHandler<HTMLInputElement>>(
-    event => {
-      if (!event.target.files?.length) return
-      const file = event.target.files[0]
-
-      const reader = new FileReader()
-
-      reader.onloadend = event => {
-        try {
-          const result = event.target?.result as ArrayBuffer
-          const uint8Array = new Uint8Array(result)
-          const decoder = new TextDecoder("utf-8")
-          const string = decoder.decode(uint8Array)
-
-          if (!string.startsWith("P5") && !string.startsWith("P6"))
-            throw new Error("Неверный формат файла. Файл должен быть P5 или P6")
-
-          const isP6 = string.startsWith("P6")
-
-          if (!RegExp(/\s/).exec(string[2]))
-            throw new Error(
-              "Неверный формат файла. Неверно определён заголовок"
-            )
-
-          let width = NaN,
-            height = NaN,
-            maxColorValue = NaN
-
-          let prevIndex = 0
-
-          try {
-            for (let i = 3; i < string.length; i++) {
-              if (RegExp(/\s/).exec(string[i])) {
-                width = Number(string.slice(3, i).trim())
-                prevIndex = i
-                break
-              }
-            }
-
-            for (let i = prevIndex + 1; i < string.length; i++) {
-              if (RegExp(/\s/).exec(string[i])) {
-                height = Number(string.slice(prevIndex + 1, i).trim())
-                prevIndex = i
-                break
-              }
-            }
-
-            for (let i = prevIndex + 1; i < string.length; i++) {
-              if (RegExp(/\s/).exec(string[i])) {
-                maxColorValue = Number(string.slice(prevIndex + 1, i).trim())
-                prevIndex = i
-                break
-              }
-            }
-          } catch {
-            throw new Error(
-              "Неверный формат файла. Неверно определён заголовок"
-            )
-          }
-
-          if (isNaN(width) || isNaN(height) || isNaN(maxColorValue))
-            throw new Error(
-              "Неверный формат файла. Неверно определён заголовок"
-            )
-
-          if (maxColorValue > 65535)
-            throw new Error(
-              "Неверный формат файла. Максимальное значение цвета не может быть больше 65535"
-            )
-
-          const pixels = uint8Array.slice(prevIndex + 1)
-          const requiredLength =
-            width * height * (isP6 ? 3 : 1) * (maxColorValue > 255 ? 2 : 1)
-
-          if (pixels.length !== requiredLength)
-            throw new Error(
-              `Неправильное количество пикселей. Ожидалось: ${requiredLength}, получено: ${pixels.length}`
-            )
-
-          if (pixels.some(pixel => pixel > maxColorValue))
-            throw new Error(
-              `Неверное значение цвета пикселя. Максимальное значение цвета: ${maxColorValue}`
-            )
-
-          setImage({
-            pixels,
-            width,
-            height,
-            maxColorValue,
-            isP6,
-          })
-        } catch (error) {
-          if (error instanceof Error) setError(error.message)
-          reader.abort()
-          return
-        } finally {
-          setIsLoading(false)
-        }
-      }
-
-      reader.onloadstart = () => {
-        setIsLoading(true)
-        setError(null)
-      }
-
-      reader.readAsArrayBuffer(file)
+export default function Home({ setImage, setTab }: IHomeProps) {
+  const uploadCallback = useCallback(
+    (image: IImage) => {
+      setImage(image)
+      setTab("image")
     },
-    []
+    [setImage, setTab]
   )
 
-  const goBack = useCallback(() => setImage(null), [])
+  const { inputProps, handleClick, isLoading, error } =
+    useImageUpload(uploadCallback)
 
-  if (image) return <Draw goBack={goBack} image={image} />
+  const navigateToImage = useCallback(() => setTab("image"), [setTab])
 
   return (
-    <Wrapper>
-      <h1>Draw Me</h1>
-      <p>Лучший редактор изображений для спортивного программирования.</p>
-      <UploadButton data-type="primary" onClick={handleButtonClick}>
-        {isLoading ? "Загрузка..." : "Загрузить файл"}
-        <input
-          type="file"
-          ref={input}
-          accept=".pgm,.ppm"
-          onChange={handleFileUpload}
-        />
-      </UploadButton>
-      {error && <ErrorMessage>{error}</ErrorMessage>}
-    </Wrapper>
+    <>
+      <MainWrapper>
+        <h1>Draw Me</h1>
+        <p>Лучший редактор изображений для спортивного программирования.</p>
+        <Button data-type="primary" onClick={handleClick}>
+          {isLoading ? "Загрузка..." : "Загрузить файл"}
+          <input {...inputProps} />
+        </Button>
+        {error && <ErrorMessage>{error}</ErrorMessage>}
+      </MainWrapper>
+
+      <BottomWrapper>
+        <NavigationText>
+          Или вы можете{" "}
+          <span onClick={navigateToImage}>перейти в редактор</span> и загрузить
+          файл там.
+        </NavigationText>
+      </BottomWrapper>
+    </>
   )
 }
 
-const Wrapper = styled.div`
+const MainWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -182,12 +73,6 @@ const Wrapper = styled.div`
   }
 `
 
-const UploadButton = styled(Button)`
-  > input {
-    display: none;
-  }
-`
-
 const ErrorMessage = styled.span`
   color: var(--red);
   ${text14};
@@ -198,17 +83,22 @@ const ErrorMessage = styled.span`
   bottom: -46px;
 `
 
-interface Tier1turik {
-  jim: string | number | "govno" | 1 | true | boolean | Array<string> | string[]
-  frozen: number
-  1: null | undefined
-  mouzsport?: string
-}
+const BottomWrapper = styled.div`
+  width: 100%;
+  position: absolute;
+  bottom: 20px;
+  display: flex;
+  justify-content: center;
+`
 
-function JimFAT(fat: string): string {
-  return fat
-}
+const NavigationText = styled.p`
+  margin: 0;
+  ${text16};
+  text-align: center;
 
-const JimNotFat = (fat: string) => ({
-  fat: 123,
-})
+  > span {
+    color: var(--light-blue);
+    cursor: pointer;
+    text-decoration: underline;
+  }
+`

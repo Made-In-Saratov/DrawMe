@@ -2,8 +2,10 @@ import { MouseEventHandler, useCallback } from "react"
 
 import { IImage } from "@/utils/types/image"
 
-export default function useImageSave(image: IImage) {
+export default function useImageSave(image: IImage | null) {
   const handleClick = useCallback<MouseEventHandler<HTMLElement>>(() => {
+    if (!image) return
+
     const encoder = new TextEncoder()
     const header = encoder.encode(
       `P${image.isP6 ? "6" : "5"}\n${image.width} ${image.height}\n${
