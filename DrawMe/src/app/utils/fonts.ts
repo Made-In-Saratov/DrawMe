@@ -11,6 +11,14 @@ export const text14 = {
   lineHeight: "15px",
 }
 
+export const text14Medium = {
+  fontFamily: family.regular,
+  fontSize: "14px",
+  fontStyle: "normal",
+  fontWeight: "600",
+  lineHeight: "15px",
+}
+
 export const text16 = {
   fontFamily: family.regular,
   fontSize: "16px",

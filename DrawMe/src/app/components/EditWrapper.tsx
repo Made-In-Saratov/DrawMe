@@ -7,6 +7,7 @@ const ButtonWrapper = styled.div`
   transform: translateX(-50%);
 
   display: flex;
+  align-items: center;
   gap: 24px;
   padding: 20px 24px;
 

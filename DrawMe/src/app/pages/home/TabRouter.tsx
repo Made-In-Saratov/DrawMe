@@ -7,8 +7,9 @@ import Image from "./Image"
 import { TabT } from "./types"
 
 import { IImage } from "@/utils/types/image"
+import Spaces from "@/pages/spaces/Spaces"
 
-export default function TabRounter() {
+export default function TabRouter() {
   const [tab, setTab] = useState<TabT>("home")
 
   const [image, setImage] = useState<IImage | null>(null)
@@ -17,6 +18,8 @@ export default function TabRounter() {
     switch (tab) {
       case "image":
         return Image
+      case "spaces":
+        return Spaces
       default:
         return Home
     }
