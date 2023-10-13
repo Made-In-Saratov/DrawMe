@@ -4,12 +4,15 @@ import styled from "styled-components"
 
 import { text20 } from "@/utils/fonts"
 import { IImage } from "@/utils/types/image"
+import { Space, spaces } from "@/utils/types/space";
 
 interface ICanvasProps {
-  image: IImage | null
+  image: IImage | null;
+  space?: Space,
+  selectedChannels?: boolean[],
 }
 
-export default function Canvas({ image }: ICanvasProps) {
+export default function Canvas({ image, space = spaces.RGB, selectedChannels = [false, false, false]}: ICanvasProps) {
   const canvas = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -27,24 +30,36 @@ export default function Canvas({ image }: ICanvasProps) {
     // color
     if (isP6)
       for (let i = 0; i < width * height; i++) {
-        clampedArray[i * 4] = pixels[i * 3] * norm
-        clampedArray[i * 4 + 1] = pixels[i * 3 + 1] * norm
-        clampedArray[i * 4 + 2] = pixels[i * 3 + 2] * norm
+        const converted = space.converter([pixels[i * 3] * norm, pixels[i * 3 + 1] * norm, pixels[i * 3 + 2] * norm]);
+        const rgb = space.reverseConverter([
+          selectedChannels[0] ? converted[0] : 0,
+          selectedChannels[1] ? converted[1] : 0,
+          selectedChannels[2] ? converted[2] : 0,
+        ])
+        clampedArray[i * 4] = rgb[0]
+        clampedArray[i * 4 + 1] = rgb[1]
+        clampedArray[i * 4 + 2] = rgb[2]
         clampedArray[i * 4 + 3] = 255
       }
     // grayscale
     else
       for (let i = 0; i < width * height; i++) {
-        clampedArray[i * 4] = pixels[i] * norm
-        clampedArray[i * 4 + 1] = pixels[i] * norm
-        clampedArray[i * 4 + 2] = pixels[i] * norm
+        const converted = space.converter([pixels[i] * norm, pixels[i] * norm, pixels[i] * norm]);
+        const rgb = space.reverseConverter([
+          selectedChannels[0] ? converted[0] : 0,
+          selectedChannels[1] ? converted[1] : 0,
+          selectedChannels[2] ? converted[2] : 0,
+        ])
+        clampedArray[i * 4] = rgb[0]
+        clampedArray[i * 4 + 1] = rgb[1]
+        clampedArray[i * 4 + 2] = rgb[2]
         clampedArray[i * 4 + 3] = 255
       }
 
     const imageData = new ImageData(clampedArray, width, height)
     const context = canvas.current.getContext("2d")
     context?.putImageData(imageData, 0, 0)
-  }, [image])
+  }, [image, space, selectedChannels])
 
   if (!image)
     return (

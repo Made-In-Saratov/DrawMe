@@ -11,7 +11,7 @@ import Canvas from "@/components/Canvas"
 import EditWrapper from "@/components/EditWrapper"
 import useImageSave from "@/utils/hooks/useImageSave"
 import { TabT } from "@/pages/home/types"
-import { Space, Spaces } from "@/utils/types/space"
+import { spaces, Spaces } from "@/utils/types/space";
 
 interface ISpacesProps {
   image: IImage | null
@@ -28,41 +28,9 @@ interface ICheckboxProps {
 }
 
 export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
-  const spaces: { [key in Spaces]: Space } = {
-    "RGB": {
-      "name": "RGB",
-      "channels": ["R", "G", "B"],
-    },
-    "HSL": {
-      "name": "HSL",
-      "channels": ["H", "S", "L"],
-    },
-    "HSV": {
-      "name": "HSV",
-      "channels": ["H", "S", "V"],
-    },
-    "YCbCr.601": {
-      "name": "YCbCr.601",
-      "channels": ["Y", "Cb", "Cr"],
-    },
-    "YCbCr.709": {
-      "name": "YCbCr.709",
-      "channels": ["Y", "Cb", "Cr"],
-    },
-    "YCoCg": {
-      "name": "YCoCg",
-      "channels": ["Y", "Co", "Cg"],
-    },
-    "CMY": {
-      "name": "CMY",
-      "channels": ["C", "M", "Y"],
-    },
-  };
   const [isDropdownShowed, setDropdownShowed] = useState<boolean>(false);
   const [selectedSpace, setSelectedSpace] = useState<Spaces>("RGB");
-  const [selectedChannels, setSelectedChannels] = useState<boolean[]>(
-    Array(3).fill(false)
-  );
+  const [selectedChannels, setSelectedChannels] = useState<boolean[]>([true, true, true]);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -77,8 +45,6 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
   const { inputProps, handleClick, isLoading, error } =
     useImageUpload(uploadCallback)
 
-  const navigateToImage = useCallback(() => setTab("spaces"), [setTab])
-
   const handleSaveClick = useImageSave(image)
 
   const isDownloadDisabled = !image
@@ -89,14 +55,13 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
 
   const handleDropdownItemClick = (_: React.MouseEvent<HTMLDivElement>, name: Spaces): void => {
     setSelectedSpace(name);
-    setSelectedChannels([false, false, false]);
+    setSelectedChannels([true, true, true]);
     setDropdownShowed(false);
   }
 
   const handleCheckboxClick = (_: React.MouseEvent<HTMLInputElement>, idx: number): void => {
     const copyOfSelectedChannels: boolean[] = [...selectedChannels];
     copyOfSelectedChannels[idx] = !selectedChannels[idx];
-    console.log('clicked', copyOfSelectedChannels);
     setSelectedChannels(copyOfSelectedChannels);
   }
 
@@ -106,7 +71,7 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
         <title>Изменение цветового пространства</title>
       </Helmet>
 
-      <Canvas image={image} />
+      <Canvas image={image} space={spaces[selectedSpace]} selectedChannels={selectedChannels} />
       <EditWrapper>
         <Column>
           <DropdownWrapper>
@@ -174,7 +139,7 @@ const HorizontalArrow = styled.span`
   height: 10px;
   border: solid black;
   border-width: 0 2px 2px 0;
-  transform: rotate(45deg) translateY(-2px);
+  transform: rotate(45deg) translateY(-4px);
 `
 
 const DropdownWrapper = styled.div`
@@ -305,4 +270,8 @@ const DownloadButton = styled(Button)`
   border: none;
   text-decoration: underline;
   ${text14Medium}
+  
+  &:focus-visible {
+    outline: none;
+  }
 `
