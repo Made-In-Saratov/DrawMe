@@ -1,10 +1,10 @@
-const RGBToHSL = (r: number, g: number, b: number) => {
+const RGBToHSL = (r: number, g: number, b: number): number[]  => {
   r /= 255;
   g /= 255;
   b /= 255;
-  const l = Math.max(r, g, b);
-  const s = l - Math.min(r, g, b);
-  const h = s
+  const l: number = Math.max(r, g, b);
+  const s: number = l - Math.min(r, g, b);
+  const h: number = s
     ? l === r
       ? (g - b) / s
       : l === g
