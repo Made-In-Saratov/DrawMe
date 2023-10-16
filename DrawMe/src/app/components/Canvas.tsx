@@ -2,17 +2,18 @@ import { useEffect, useRef } from "react"
 
 import styled from "styled-components"
 
+import { text20 } from "@/utils/fonts"
 import { IImage } from "@/utils/types/image"
 
 interface ICanvasProps {
-  image: IImage
+  image: IImage | null
 }
 
 export default function Canvas({ image }: ICanvasProps) {
   const canvas = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    if (!canvas.current) return
+    if (!canvas.current || !image) return
 
     const { pixels: rawPixels, width, height, maxColorValue, isP6 } = image
     canvas.current.width = width
@@ -45,6 +46,13 @@ export default function Canvas({ image }: ICanvasProps) {
     context?.putImageData(imageData, 0, 0)
   }, [image])
 
+  if (!image)
+    return (
+      <NoImage>
+        <p>Изображение не загружено</p>
+      </NoImage>
+    )
+
   return (
     <Wrapper>
       <StyledCanvas ref={canvas} />
@@ -70,5 +78,18 @@ const StyledCanvas = styled.canvas`
   border: 1px solid var(--white);
 
   max-width: calc(95vw - 32px);
-  max-height: calc(90vh - 32px);
+  max-height: calc(95vh - 32px);
+`
+
+const NoImage = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+
+  > p {
+    margin: 0;
+    ${text20};
+    text-align: center;
+  }
 `
