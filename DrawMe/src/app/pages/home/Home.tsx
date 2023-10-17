@@ -1,5 +1,6 @@
 import { useCallback } from "react"
 
+import { Helmet } from "react-helmet-async"
 import styled from "styled-components"
 
 import { TabT } from "./types"
@@ -30,6 +31,10 @@ export default function Home({ setImage, setTab }: IHomeProps) {
 
   return (
     <>
+      <Helmet>
+        <title>Draw Me</title>
+      </Helmet>
+
       <MainWrapper>
         <h1>Draw Me</h1>
         <p>Лучший редактор изображений для спортивного программирования.</p>

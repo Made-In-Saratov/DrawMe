@@ -7,6 +7,7 @@ import Image from "./Image"
 import { ITabDescription, TabT } from "./types"
 
 import Navbar from "@/components/Navbar"
+import Gamma from "@/pages/home/Gamma"
 import { IImage } from "@/utils/types/image"
 import ColorIcon from "~/assets/ColorIcon"
 import GammaIcon from "~/assets/GammaIcon"
@@ -31,7 +32,7 @@ const tabs: ITabDescription[] = [
 ]
 
 export default function TabRounter() {
-  const [tab, setTab] = useState<TabT>("home")
+  const [tab, setTab] = useState<TabT>("gamma")
 
   const [image, setImage] = useState<IImage | null>(null)
 
@@ -39,6 +40,8 @@ export default function TabRounter() {
     switch (tab) {
       case "image":
         return Image
+      case "gamma":
+        return Gamma
       default:
         return Home
     }

@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async"
+import styled from "styled-components"
 
 import Button from "@/components/Button"
 import Canvas from "@/components/Canvas"
@@ -26,7 +27,8 @@ export default function Image({ image, setImage }: IImageProps) {
       </Helmet>
 
       <Canvas image={image} />
-      <EditWrapper>
+
+      <StyledEditWrapper>
         <Button data-type="secondary" onClick={handleClick}>
           {isLoading ? "Загрузка..." : error ? "Ошибка" : "Загрузить другое"}
           <input {...inputProps} />
@@ -38,7 +40,13 @@ export default function Image({ image, setImage }: IImageProps) {
         >
           Скачать изображение
         </Button>
-      </EditWrapper>
+      </StyledEditWrapper>
     </>
   )
 }
+
+const StyledEditWrapper = styled(EditWrapper)`
+  display: flex;
+  gap: 24px;
+  padding: 20px 24px;
+`
