@@ -8,21 +8,13 @@ import { TabT } from "./types"
 import Button from "@/components/Button"
 import { header48, text14, text16 } from "@/utils/fonts"
 import useImageUpload from "@/utils/hooks/useImageUpoad"
-import { IImage } from "@/utils/types/image"
 
 interface IHomeProps {
-  setImage: (image: IImage | null) => void
   setTab: (tab: TabT) => void
 }
 
-export default function Home({ setImage, setTab }: IHomeProps) {
-  const uploadCallback = useCallback(
-    (image: IImage) => {
-      setImage(image)
-      setTab("image")
-    },
-    [setImage, setTab]
-  )
+export default function Home({ setTab }: IHomeProps) {
+  const uploadCallback = useCallback(() => setTab("image"), [setTab])
 
   const { inputProps, handleClick, isLoading, error } =
     useImageUpload(uploadCallback)

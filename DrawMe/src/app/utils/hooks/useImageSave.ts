@@ -1,10 +1,12 @@
 import { MouseEventHandler, useCallback } from "react"
 
-import { IImage } from "@/utils/types/image"
+import { useAppSelector } from "@/store"
 
-export default function useImageSave(image: IImage | null) {
+export default function useImageSave() {
+  const image = useAppSelector(({ image }) => image)
+
   const handleClick = useCallback<MouseEventHandler<HTMLElement>>(() => {
-    if (!image) return
+    if (image.pixels.length === 0) return
 
     const encoder = new TextEncoder()
     const header = encoder.encode(

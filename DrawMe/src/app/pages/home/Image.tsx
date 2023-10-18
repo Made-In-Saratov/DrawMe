@@ -4,21 +4,18 @@ import styled from "styled-components"
 import Button from "@/components/Button"
 import Canvas from "@/components/Canvas"
 import EditWrapper from "@/components/EditWrapper"
+import { useAppSelector } from "@/store"
 import useImageSave from "@/utils/hooks/useImageSave"
 import useImageUpload from "@/utils/hooks/useImageUpoad"
-import { IImage } from "@/utils/types/image"
 
-interface IImageProps {
-  image: IImage | null
-  setImage: (image: IImage) => void
-}
+export default function Image() {
+  const { inputProps, handleClick, isLoading, error } = useImageUpload()
 
-export default function Image({ image, setImage }: IImageProps) {
-  const { inputProps, handleClick, isLoading, error } = useImageUpload(setImage)
+  const handleSaveClick = useImageSave()
 
-  const handleSaveClick = useImageSave(image)
+  const image = useAppSelector(({ image }) => image)
 
-  const isDownloadDisabled = !image
+  const isDownloadDisabled = image.pixels.length === 0
 
   return (
     <>

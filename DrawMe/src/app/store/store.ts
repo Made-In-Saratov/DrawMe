@@ -1,11 +1,13 @@
 import { Action, configureStore, ThunkAction } from "@reduxjs/toolkit"
 
 import apiReducers, { middlewares } from "./api/reducers"
+import dataReducers from "./slices"
 
 export const makeReduxStore = (state = {}) =>
   configureStore({
     reducer: {
       ...apiReducers,
+      ...dataReducers,
     },
     middleware: base => base().concat(...middlewares),
     preloadedState: state,

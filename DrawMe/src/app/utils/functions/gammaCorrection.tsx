@@ -1,6 +1,6 @@
 import { produce } from "immer"
 
-import { IImage } from "@/utils/types/image"
+import { IImage } from "@/store/slices/image/types"
 
 /* eslint-disable no-param-reassign */
 export function gammaCorrection(image: IImage, gamma: number) {

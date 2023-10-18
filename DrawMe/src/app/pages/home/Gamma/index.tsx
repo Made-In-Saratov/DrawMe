@@ -7,36 +7,32 @@ import GammaEditor from "./GammaEditor"
 
 import Canvas from "@/components/Canvas"
 import EditWrapper from "@/components/EditWrapper"
+import { useAppDispatch, useAppSelector } from "@/store"
+import { setImage } from "@/store/slices/image"
 import { gammaCorrection, inverseGammaCorrection } from "@/utils/functions"
-import { IImage } from "@/utils/types/image"
 
-interface IGammaProps {
-  image: IImage | null
-  setImage: (image: IImage) => void
-}
+export default function Gamma() {
+  const dispatch = useAppDispatch()
 
-export default function Gamma({ image, setImage }: IGammaProps) {
+  const image = useAppSelector(({ image }) => image)
+
   const onConvertClick = useCallback(
     (gamma: number) => {
-      if (!image) return
-
       const newImage = inverseGammaCorrection(gammaCorrection(image, gamma), 0)
 
-      setImage(newImage)
+      dispatch(setImage(newImage))
     },
-    [image, setImage]
+    [dispatch, image]
   )
 
   const onAdjustClick = useCallback(
     (gamma: number) => {
-      if (!image) return
-
       // correction to sRGB, then inverse gamma correction with `gamma` parameter
       const newImage = inverseGammaCorrection(gammaCorrection(image, 0), gamma)
 
-      setImage(newImage)
+      dispatch(setImage(newImage))
     },
-    [image, setImage]
+    [dispatch, image]
   )
 
   return (
