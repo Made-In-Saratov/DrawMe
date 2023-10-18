@@ -1,13 +1,13 @@
 const CMYToRGB = (c: number, m: number, y: number): number[] => {
-  c = Math.min(1, Math.max(0, c));
-  m = Math.min(1, Math.max(0, m));
-  y = Math.min(1, Math.max(0, y));
+  const cyan = Math.min(1, Math.max(0, c))
+  const magenta = Math.min(1, Math.max(0, m))
+  const yellow = Math.min(1, Math.max(0, y))
 
-  const r: number = (1 - c) * 255;
-  const g: number = (1 - m) * 255;
-  const b: number = (1 - y) * 255;
+  const r = (1 - cyan) * 255
+  const g = (1 - magenta) * 255
+  const b = (1 - yellow) * 255
 
-  return [r, g, b];
+  return [r, g, b]
 }
 
-export default CMYToRGB;
+export default CMYToRGB

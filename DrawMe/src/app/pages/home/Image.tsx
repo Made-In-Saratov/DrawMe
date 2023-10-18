@@ -4,7 +4,7 @@ import Button from "@/components/Button"
 import Canvas from "@/components/Canvas"
 import EditWrapper from "@/components/EditWrapper"
 import useImageSave from "@/utils/hooks/useImageSave"
-import useImageUpload from "@/utils/hooks/useImageUpoad"
+import useImageUpload from "@/utils/hooks/useImageUpload"
 import { IImage } from "@/utils/types/image"
 
 interface IImageProps {

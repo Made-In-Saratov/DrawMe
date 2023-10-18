@@ -1,17 +1,17 @@
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { useCallback, useRef, useState } from "react"
 
+import { Helmet } from "react-helmet-async"
 import styled from "styled-components"
 
 import Button from "@/components/Button"
-import { text14, text14Medium, text16, text16Medium } from "@/utils/fonts"
-import useImageUpload from "@/utils/hooks/useImageUpoad"
-import { IImage } from "@/utils/types/image"
-import { Helmet } from "react-helmet-async"
 import Canvas from "@/components/Canvas"
 import EditWrapper from "@/components/EditWrapper"
-import useImageSave from "@/utils/hooks/useImageSave"
 import { TabT } from "@/pages/home/types"
-import { spaces, Spaces } from "@/utils/types/space";
+import { text14Medium, text16Medium } from "@/utils/fonts"
+import useImageSave from "@/utils/hooks/useImageSave"
+import useImageUpload from "@/utils/hooks/useImageUpload"
+import { IImage } from "@/utils/types/image"
+import { spaces, Spaces } from "@/utils/types/space"
 
 interface ISpacesProps {
   image: IImage | null
@@ -20,19 +20,23 @@ interface ISpacesProps {
 }
 
 interface IDropdownItemProps {
-  selected: boolean;
+  selected: boolean
 }
 
 interface ICheckboxProps {
-  checked: boolean;
+  checked: boolean
 }
 
 export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
-  const [isDropdownShowed, setDropdownShowed] = useState<boolean>(false);
-  const [selectedSpace, setSelectedSpace] = useState<Spaces>("RGB");
-  const [selectedChannels, setSelectedChannels] = useState<boolean[]>([true, true, true]);
+  const [isDropdownShowed, setDropdownShowed] = useState<boolean>(false)
+  const [selectedSpace, setSelectedSpace] = useState<Spaces>("RGB")
+  const [selectedChannels, setSelectedChannels] = useState<boolean[]>([
+    true,
+    true,
+    true,
+  ])
 
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const uploadCallback = useCallback(
     (image: IImage) => {
@@ -45,24 +49,75 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
   const { inputProps, handleClick, isLoading, error } =
     useImageUpload(uploadCallback)
 
-  const handleSaveClick = useImageSave(image)
+  const handleImageSave = (): IImage | null => {
+    if (!image) return null
+
+    const result: number = selectedChannels.reduce(
+      (sum: number, value: boolean) => sum + +value,
+      0
+    )
+    if (result === 1 && image.isP6) {
+      const copyOfImage = image
+
+      const {
+        pixels: rawPixels,
+        width,
+        height,
+        maxColorValue,
+        isP6,
+      } = copyOfImage
+      const pixels =
+        maxColorValue > 255 ? new Uint16Array(rawPixels) : rawPixels // convert to Uint16Array if maxColorValue > 255
+      const norm = 255 / maxColorValue // normalization coefficient
+      const newPixels = new Uint8Array(pixels.length / 3)
+
+      let idx = 0
+      for (let i = 0; i < width * height; i++) {
+        newPixels[idx] =
+          pixels[i * 3 + selectedChannels.findIndex(el => el)] * norm
+        idx += 1
+      }
+
+      console.log(copyOfImage.width, copyOfImage.height, copyOfImage.isP6)
+      // copyOfImage.width = width / 3;
+      // copyOfImage.height = height / 3;
+      copyOfImage.pixels = newPixels
+      copyOfImage.isP6 = false
+
+      console.log(isP6)
+      console.log(pixels)
+      console.log(newPixels)
+
+      return copyOfImage
+    }
+
+    return image
+  }
+
+  const handleSaveClick = useImageSave(handleImageSave())
 
   const isDownloadDisabled = !image
 
   const openDropdown = () => {
-    setDropdownShowed(true);
+    setDropdownShowed(true)
   }
 
-  const handleDropdownItemClick = (_: React.MouseEvent<HTMLDivElement>, name: Spaces): void => {
-    setSelectedSpace(name);
-    setSelectedChannels([true, true, true]);
-    setDropdownShowed(false);
+  const handleDropdownItemClick = (
+    _: React.MouseEvent<HTMLDivElement>,
+    name: Spaces
+  ): void => {
+    setSelectedSpace(name)
+    setSelectedChannels([true, true, true])
+    setDropdownShowed(false)
   }
 
-  const handleCheckboxClick = (_: React.MouseEvent<HTMLInputElement>, idx: number): void => {
-    const copyOfSelectedChannels: boolean[] = [...selectedChannels];
-    copyOfSelectedChannels[idx] = !selectedChannels[idx];
-    setSelectedChannels(copyOfSelectedChannels);
+  const handleCheckboxClick = (
+    _: React.ChangeEvent<HTMLInputElement>,
+    idx: number
+  ): void => {
+    const copyOfSelectedChannels: boolean[] = [...selectedChannels]
+    copyOfSelectedChannels[idx] = !selectedChannels[idx]
+    setSelectedChannels(copyOfSelectedChannels)
   }
 
   return (
@@ -71,7 +126,11 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
         <title>Изменение цветового пространства</title>
       </Helmet>
 
-      <Canvas image={image} space={spaces[selectedSpace]} selectedChannels={selectedChannels} />
+      <Canvas
+        image={image}
+        space={spaces[selectedSpace]}
+        selectedChannels={selectedChannels}
+      />
       <EditWrapper>
         <Column>
           <DropdownWrapper>
@@ -82,16 +141,18 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
             {isDropdownShowed && (
               <Dropdown ref={dropdownRef}>
                 {Object.keys(spaces).map((spaceKey: string) => {
-                  const name: string = spaces[spaceKey as Spaces].name;
+                  const name: string = spaces[spaceKey as Spaces].name
                   return (
                     <DropdownItem
                       key={name}
                       selected={selectedSpace === name}
-                      onClick={(event) => handleDropdownItemClick(event, name as Spaces)}
+                      onClick={event =>
+                        handleDropdownItemClick(event, name as Spaces)
+                      }
                     >
                       {name}
                     </DropdownItem>
-                  );
+                  )
                 })}
               </Dropdown>
             )}
@@ -103,16 +164,18 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
         </Column>
         <Column>
           <ChannelsList>
-            {spaces[selectedSpace].channels.map((channelName: string, idx: number) => (
-              <ChannelLabel>
-                <ChannelCheckbox
-                  type="checkbox"
-                  checked={selectedChannels[idx]}
-                  onClick={(event) => handleCheckboxClick(event, idx)}
-                />
-                <ChannelName>Канал {channelName}</ChannelName>
-              </ChannelLabel>
-            ))}
+            {spaces[selectedSpace].channels.map(
+              (channelName: string, idx: number) => (
+                <ChannelLabel key={channelName}>
+                  <ChannelCheckbox
+                    type="checkbox"
+                    checked={selectedChannels[idx]}
+                    onChange={event => handleCheckboxClick(event, idx)}
+                  />
+                  <ChannelName>Канал {channelName}</ChannelName>
+                </ChannelLabel>
+              )
+            )}
           </ChannelsList>
         </Column>
         <Column>
@@ -166,7 +229,7 @@ const Dropdown = styled.div`
   padding: 16px 0;
   background: #fff;
   border-radius: 20px;
-  box-shadow: 4px 8px 20px 0px rgba(16, 0, 65, 0.15);
+  box-shadow: 4px 8px 20px 0 rgba(16, 0, 65, 0.15);
   cursor: pointer;
   ${text16Medium}
 `
@@ -178,7 +241,9 @@ const DropdownItem = styled.div<IDropdownItemProps>`
   &:hover {
     color: var(--magenta);
   }
-  ${({ selected }) => selected && `
+  ${({ selected }) =>
+    selected &&
+    `
     color: var(--light-blue);
     &::before {
       content: '';
@@ -211,7 +276,9 @@ const ChannelCheckbox = styled.input<ICheckboxProps>`
   border-radius: 5px;
   color: #ffffff;
 
-  ${({ checked }) => checked && `
+  ${({ checked }) =>
+    checked &&
+    `
     position: relative;
     border: none;
     background: linear-gradient(
@@ -235,21 +302,6 @@ const ChannelCheckbox = styled.input<ICheckboxProps>`
   `}
 `
 
-const ChannelCheckmark = styled.span`
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 20px;
-  width: 20px;
-  border-radius: 5px;
-  background: linear-gradient(
-          250deg,
-          var(--magenta) 10%,
-          var(--light-blue) 90%
-  );
-  color: #ffffff;
-`
-
 const ChannelLabel = styled.label`
   display: flex;
   align-items: center;
@@ -270,7 +322,7 @@ const DownloadButton = styled(Button)`
   border: none;
   text-decoration: underline;
   ${text14Medium}
-  
+
   &:focus-visible {
     outline: none;
   }

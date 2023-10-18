@@ -6,7 +6,7 @@ import { TabT } from "./types"
 
 import Button from "@/components/Button"
 import { header48, text14, text16 } from "@/utils/fonts"
-import useImageUpload from "@/utils/hooks/useImageUpoad"
+import useImageUpload from "@/utils/hooks/useImageUpload"
 import { IImage } from "@/utils/types/image"
 
 interface IHomeProps {
@@ -26,7 +26,7 @@ export default function Home({ setImage, setTab }: IHomeProps) {
   const { inputProps, handleClick, isLoading, error } =
     useImageUpload(uploadCallback)
 
-  const navigateToImage = useCallback(() => setTab("image"), [setTab])
+  const navigateToImage = useCallback(() => setTab("spaces"), [setTab])
 
   return (
     <>

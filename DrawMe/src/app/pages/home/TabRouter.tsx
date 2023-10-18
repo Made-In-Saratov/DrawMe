@@ -6,8 +6,8 @@ import Home from "./Home"
 import Image from "./Image"
 import { TabT } from "./types"
 
-import { IImage } from "@/utils/types/image"
 import Spaces from "@/pages/spaces/Spaces"
+import { IImage } from "@/utils/types/image"
 
 export default function TabRouter() {
   const [tab, setTab] = useState<TabT>("home")
@@ -37,5 +37,4 @@ const Wrapper = styled.div`
 
   height: 100vh;
   box-sizing: border-box;
-  padding: 20px;
 `

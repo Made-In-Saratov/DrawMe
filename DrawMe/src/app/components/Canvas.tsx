@@ -4,15 +4,19 @@ import styled from "styled-components"
 
 import { text20 } from "@/utils/fonts"
 import { IImage } from "@/utils/types/image"
-import { Space, spaces } from "@/utils/types/space";
+import { Space, spaces } from "@/utils/types/space"
 
 interface ICanvasProps {
-  image: IImage | null;
-  space?: Space,
-  selectedChannels?: boolean[],
+  image: IImage | null
+  space?: Space
+  selectedChannels?: boolean[]
 }
 
-export default function Canvas({ image, space = spaces.RGB, selectedChannels = [false, false, false]}: ICanvasProps) {
+export default function Canvas({
+  image,
+  space = spaces.RGB,
+  selectedChannels = [false, false, false],
+}: ICanvasProps) {
   const canvas = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
@@ -30,7 +34,11 @@ export default function Canvas({ image, space = spaces.RGB, selectedChannels = [
     // color
     if (isP6)
       for (let i = 0; i < width * height; i++) {
-        const converted = space.converter([pixels[i * 3] * norm, pixels[i * 3 + 1] * norm, pixels[i * 3 + 2] * norm]);
+        const converted = space.converter([
+          pixels[i * 3] * norm,
+          pixels[i * 3 + 1] * norm,
+          pixels[i * 3 + 2] * norm,
+        ])
         const rgb = space.reverseConverter([
           selectedChannels[0] ? converted[0] : 0,
           selectedChannels[1] ? converted[1] : 0,
@@ -42,9 +50,14 @@ export default function Canvas({ image, space = spaces.RGB, selectedChannels = [
         clampedArray[i * 4 + 3] = 255
       }
     // grayscale
-    else
+    else {
+      console.log("hey P5")
       for (let i = 0; i < width * height; i++) {
-        const converted = space.converter([pixels[i] * norm, pixels[i] * norm, pixels[i] * norm]);
+        const converted = space.converter([
+          pixels[i] * norm,
+          pixels[i] * norm,
+          pixels[i] * norm,
+        ])
         const rgb = space.reverseConverter([
           selectedChannels[0] ? converted[0] : 0,
           selectedChannels[1] ? converted[1] : 0,
@@ -55,7 +68,9 @@ export default function Canvas({ image, space = spaces.RGB, selectedChannels = [
         clampedArray[i * 4 + 2] = rgb[2]
         clampedArray[i * 4 + 3] = 255
       }
+    }
 
+    console.log("Image Data", clampedArray, width, height)
     const imageData = new ImageData(clampedArray, width, height)
     const context = canvas.current.getContext("2d")
     context?.putImageData(imageData, 0, 0)
@@ -78,7 +93,7 @@ export default function Canvas({ image, space = spaces.RGB, selectedChannels = [
 const Wrapper = styled.div`
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 4px 8px 20px 0px rgba(16, 0, 65, 0.15);
+  box-shadow: 4px 8px 20px 0 rgba(16, 0, 65, 0.15);
 
   width: fit-content;
   height: fit-content;
