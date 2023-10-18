@@ -6,7 +6,9 @@
     "start": "webpack-dev-server --open --mode development --hot",
     "build": "webpack --mode production",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint",
+    "format": "prettier \".\" --w"
   },
   "eslintConfig": {
     "extends": [
