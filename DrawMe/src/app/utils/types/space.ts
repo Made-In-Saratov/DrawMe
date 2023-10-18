@@ -5,6 +5,7 @@ import RGBToCMY from "@/utils/functions/converters/RGBToCMY"
 import RGBToHSL from "@/utils/functions/converters/RGBToHSL"
 import RGBToHSV from "@/utils/functions/converters/RGBToHSV"
 import RGBToYCbCr601 from "@/utils/functions/converters/RGBToYCbCr601"
+import RGBToYCbCr709 from "@/utils/functions/converters/RGBToYCbCr709"
 import RGBToYCoCg from "@/utils/functions/converters/RGBToYCoCg"
 import YCbCr601ToRGB from "@/utils/functions/converters/YCbCr601ToRGB"
 import YCbCr709ToRGB from "@/utils/functions/converters/YCbCr709ToRGB"
@@ -59,7 +60,7 @@ export const spaces: { [key in Spaces]: Space } = {
     channels: ["Y", "Cb", "Cr"],
     converter: (rgb: number[]) => YCbCr709ToRGB(rgb[0], rgb[1], rgb[2]),
     reverseConverter: (colorSpace: number[]) =>
-      RGBToYCbCr601(colorSpace[0], colorSpace[1], colorSpace[2]),
+      RGBToYCbCr709(colorSpace[0], colorSpace[1], colorSpace[2]),
   },
   "YCoCg": {
     name: "YCoCg",

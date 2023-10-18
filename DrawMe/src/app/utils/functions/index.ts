@@ -1,0 +1,1 @@
+export { countNumberOfSelectedChannels } from "./countNumberOfSelectedChannels"

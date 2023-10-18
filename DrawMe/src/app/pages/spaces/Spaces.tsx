@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 
 import { Helmet } from "react-helmet-async"
 import styled from "styled-components"
@@ -8,6 +8,7 @@ import Canvas from "@/components/Canvas"
 import EditWrapper from "@/components/EditWrapper"
 import { TabT } from "@/pages/home/types"
 import { text14Medium, text16Medium } from "@/utils/fonts"
+import { countNumberOfSelectedChannels } from "@/utils/functions"
 import useImageSave from "@/utils/hooks/useImageSave"
 import useImageUpload from "@/utils/hooks/useImageUpload"
 import { IImage } from "@/utils/types/image"
@@ -52,12 +53,9 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
   const handleImageSave = (): IImage | null => {
     if (!image) return null
 
-    const result: number = selectedChannels.reduce(
-      (sum: number, value: boolean) => sum + +value,
-      0
-    )
+    const result = countNumberOfSelectedChannels(selectedChannels)
     if (result === 1 && image.isP6) {
-      const copyOfImage = image
+      const copyOfImage = Object.create(image)
 
       const {
         pixels: rawPixels,
@@ -119,6 +117,10 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
     copyOfSelectedChannels[idx] = !selectedChannels[idx]
     setSelectedChannels(copyOfSelectedChannels)
   }
+
+  useEffect(() => {
+    console.log("image updated")
+  }, [image])
 
   return (
     <>

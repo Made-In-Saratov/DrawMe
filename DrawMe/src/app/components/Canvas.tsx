@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react"
 import styled from "styled-components"
 
 import { text20 } from "@/utils/fonts"
+import { countNumberOfSelectedChannels } from "@/utils/functions"
 import { IImage } from "@/utils/types/image"
 import { Space, spaces } from "@/utils/types/space"
 
@@ -39,11 +40,21 @@ export default function Canvas({
           pixels[i * 3 + 1] * norm,
           pixels[i * 3 + 2] * norm,
         ])
-        const rgb = space.reverseConverter([
-          selectedChannels[0] ? converted[0] : 0,
-          selectedChannels[1] ? converted[1] : 0,
-          selectedChannels[2] ? converted[2] : 0,
-        ])
+        let rgb = []
+        if (countNumberOfSelectedChannels(selectedChannels) === 1) {
+          const idx = selectedChannels?.findIndex(value => value)
+          rgb = space.reverseConverter([
+            converted[idx],
+            converted[idx],
+            converted[idx],
+          ])
+        } else {
+          rgb = space.reverseConverter([
+            selectedChannels[0] ? converted[0] : 0,
+            selectedChannels[1] ? converted[1] : 0,
+            selectedChannels[2] ? converted[2] : 0,
+          ])
+        }
         clampedArray[i * 4] = rgb[0]
         clampedArray[i * 4 + 1] = rgb[1]
         clampedArray[i * 4 + 2] = rgb[2]

@@ -1,6 +1,6 @@
 const HSLToRGB = (h: number, s: number, l: number): number[] => {
-  const saturation = s / 100
-  const lightness = l / 100
+  const saturation = s
+  const lightness = l
   const k = (n: number) => (n + h / 30) % 12
   const a = saturation * Math.min(lightness, 1 - lightness)
   const f = (n: number) =>
