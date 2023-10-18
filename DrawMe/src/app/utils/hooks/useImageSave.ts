@@ -13,7 +13,7 @@ export default function useImageSave(image: IImage | null) {
       }\n`
     )
 
-    const blob = new Blob([header, image.pixels], {
+    const blob = new Blob([header, Uint8Array.from(image.pixels)], {
       type: image.isP6 ? "image/x-portable-pixmap" : "image/x-portable-graymap",
     })
 

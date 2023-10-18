@@ -1,4 +1,9 @@
-import { ChangeEventHandler, useCallback, useState } from "react"
+import {
+  ChangeEventHandler,
+  MouseEventHandler,
+  useCallback,
+  useState,
+} from "react"
 
 import styled from "styled-components"
 
@@ -10,9 +15,15 @@ import { text16 } from "@/utils/fonts"
 interface IGammaEditorProps {
   title: string
   tooltip: React.ReactNode
+
+  onClick?: (gamma: number) => void
 }
 
-export default function GammaEditor({ title, tooltip }: IGammaEditorProps) {
+export default function GammaEditor({
+  title,
+  tooltip,
+  onClick = () => {},
+}: IGammaEditorProps) {
   const [value, setValue] = useState("0")
 
   const handleInput = useCallback<ChangeEventHandler<HTMLInputElement>>(
@@ -20,9 +31,11 @@ export default function GammaEditor({ title, tooltip }: IGammaEditorProps) {
     []
   )
 
-  const handleClick = useCallback(() => {
-    console.log(value)
-  }, [value])
+  const handleClick = useCallback<MouseEventHandler<HTMLButtonElement>>(() => {
+    const gamma = Number(value)
+
+    onClick(gamma)
+  }, [onClick, value])
 
   const isButtonDisabled = !value || isNaN(Number(value)) || Number(value) < 0
 
@@ -37,7 +50,11 @@ export default function GammaEditor({ title, tooltip }: IGammaEditorProps) {
         placeholder="Гамма..."
         type="number"
       />
-      <Button data-type="primary" disabled={isButtonDisabled}>
+      <Button
+        data-type="primary"
+        disabled={isButtonDisabled}
+        onClick={handleClick}
+      >
         Готово
       </Button>
     </Wrapper>

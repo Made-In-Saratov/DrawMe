@@ -101,11 +101,13 @@ export default function useImageUpload(callback: (image: IImage) => void) {
             )
 
           const image: IImage = {
-            pixels,
+            pixels: Array.from(pixels),
             width,
             height,
             maxColorValue,
             isP6,
+
+            gamma: 0,
           }
 
           callback(image)

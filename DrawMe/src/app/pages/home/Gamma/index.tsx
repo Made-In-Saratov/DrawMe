@@ -1,3 +1,5 @@
+import { useCallback } from "react"
+
 import { Helmet } from "react-helmet-async"
 import styled from "styled-components"
 
@@ -5,6 +7,7 @@ import GammaEditor from "./GammaEditor"
 
 import Canvas from "@/components/Canvas"
 import EditWrapper from "@/components/EditWrapper"
+import { gammaCorrection, inverseGammaCorrection } from "@/utils/functions"
 import { IImage } from "@/utils/types/image"
 
 interface IGammaProps {
@@ -13,6 +16,29 @@ interface IGammaProps {
 }
 
 export default function Gamma({ image, setImage }: IGammaProps) {
+  const onConvertClick = useCallback(
+    (gamma: number) => {
+      if (!image) return
+
+      const newImage = inverseGammaCorrection(gammaCorrection(image, gamma), 0)
+
+      setImage(newImage)
+    },
+    [image, setImage]
+  )
+
+  const onAdjustClick = useCallback(
+    (gamma: number) => {
+      if (!image) return
+
+      // correction to sRGB, then inverse gamma correction with `gamma` parameter
+      const newImage = inverseGammaCorrection(gammaCorrection(image, 0), gamma)
+
+      setImage(newImage)
+    },
+    [image, setImage]
+  )
+
   return (
     <>
       <Helmet>
@@ -30,6 +56,7 @@ export default function Gamma({ image, setImage }: IGammaProps) {
               <br /> Если вы его скачаете, то увидите изменения.
             </span>
           }
+          onClick={onConvertClick}
         />
         <GammaEditor
           title="Назначить:"
@@ -39,6 +66,7 @@ export default function Gamma({ image, setImage }: IGammaProps) {
               <br /> Но если вы его скачаете, то не увидите изменения.
             </span>
           }
+          onClick={onAdjustClick}
         />
       </StyledEditWrapper>
     </>
