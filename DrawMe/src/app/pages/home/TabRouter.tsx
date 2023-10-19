@@ -7,7 +7,7 @@ import Image from "./Image"
 import { ITabDescription, TabT } from "./types"
 
 import Navbar from "@/components/Navbar"
-import Spaces from "@/pages/spaces/Spaces"
+import Spaces from "@/pages/home/Spaces"
 import { IImage } from "@/utils/types/image"
 import ColorIcon from "~/assets/ColorIcon"
 import GammaIcon from "~/assets/GammaIcon"

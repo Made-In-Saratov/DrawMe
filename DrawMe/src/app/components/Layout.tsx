@@ -14,4 +14,6 @@ const PageWrapper = styled.div`
   box-sizing: border-box;
   min-height: 100vh;
   height: max-content;
+
+  color: var(--dark-blue);
 `

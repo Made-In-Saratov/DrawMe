@@ -2,14 +2,15 @@ import { useEffect, useRef } from "react"
 
 import styled from "styled-components"
 
+import { ISpace } from "@/pages/home/Spaces/types"
+import { spaces } from "@/pages/home/Spaces/utils/spaces"
 import { text20 } from "@/utils/fonts"
 import { countNumberOfSelectedChannels } from "@/utils/functions"
 import { IImage } from "@/utils/types/image"
-import { Space, spaces } from "@/utils/types/space"
 
 interface ICanvasProps {
   image: IImage | null
-  space?: Space
+  space?: ISpace
   selectedChannels?: boolean[]
 }
 

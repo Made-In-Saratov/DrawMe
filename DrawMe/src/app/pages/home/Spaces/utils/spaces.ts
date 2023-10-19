@@ -1,3 +1,4 @@
+import { ISpace, SpacesT } from "@/pages/home/Spaces/types"
 import CMYToRGB from "@/utils/functions/converters/CMYToRGB"
 import HSLToRGB from "@/utils/functions/converters/HSLToRGB"
 import HSVToRGB from "@/utils/functions/converters/HSVToRGB"
@@ -11,23 +12,7 @@ import YCbCr601ToRGB from "@/utils/functions/converters/YCbCr601ToRGB"
 import YCbCr709ToRGB from "@/utils/functions/converters/YCbCr709ToRGB"
 import YCoCgToRGB from "@/utils/functions/converters/YCoCgToRGB"
 
-export type Spaces =
-  | "RGB"
-  | "HSL"
-  | "HSV"
-  | "YCbCr.601"
-  | "YCbCr.709"
-  | "YCoCg"
-  | "CMY"
-
-export interface Space {
-  name: string
-  channels: string[]
-  converter: (rgb: number[]) => number[]
-  reverseConverter: (colorSpace: number[]) => number[]
-}
-
-export const spaces: { [key in Spaces]: Space } = {
+export const spaces: Record<SpacesT, ISpace> = {
   "RGB": {
     name: "RGB",
     channels: ["R", "G", "B"],

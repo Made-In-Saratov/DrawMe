@@ -5,14 +5,16 @@ import styled from "styled-components"
 
 import Button from "@/components/Button"
 import Canvas from "@/components/Canvas"
+import Dropdown from "@/components/Dropdown"
 import EditWrapper from "@/components/EditWrapper"
+import { SpacesT } from "@/pages/home/Spaces/types"
+import { spaces } from "@/pages/home/Spaces/utils/spaces"
 import { TabT } from "@/pages/home/types"
-import { text14Medium, text16Medium } from "@/utils/fonts"
+import { text14Medium } from "@/utils/fonts"
 import { countNumberOfSelectedChannels } from "@/utils/functions"
 import useImageSave from "@/utils/hooks/useImageSave"
 import useImageUpload from "@/utils/hooks/useImageUpload"
 import { IImage } from "@/utils/types/image"
-import { spaces, Spaces } from "@/utils/types/space"
 
 interface ISpacesProps {
   image: IImage | null
@@ -29,15 +31,12 @@ interface ICheckboxProps {
 }
 
 export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
-  const [isDropdownShowed, setDropdownShowed] = useState<boolean>(false)
-  const [selectedSpace, setSelectedSpace] = useState<Spaces>("RGB")
+  const [selectedSpace, setSelectedSpace] = useState<SpacesT>("RGB")
   const [selectedChannels, setSelectedChannels] = useState<boolean[]>([
     true,
     true,
     true,
   ])
-
-  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const uploadCallback = useCallback(
     (image: IImage) => {
@@ -94,33 +93,22 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
 
   const handleSaveClick = useImageSave(handleImageSave())
 
+  const getCheckboxClickHandler = useCallback(
+    (index: number) => () =>
+      setSelectedChannels(prevState => {
+        const copyOfSelectedChannels: boolean[] = [...prevState]
+        copyOfSelectedChannels[index] = !prevState[index]
+        return copyOfSelectedChannels
+      }),
+    []
+  )
+
+  const handleItemChange = useCallback(
+    (item: string) => setSelectedSpace(item as SpacesT),
+    [setSelectedSpace]
+  )
+
   const isDownloadDisabled = !image
-
-  const openDropdown = () => {
-    setDropdownShowed(true)
-  }
-
-  const handleDropdownItemClick = (
-    _: React.MouseEvent<HTMLDivElement>,
-    name: Spaces
-  ): void => {
-    setSelectedSpace(name)
-    setSelectedChannels([true, true, true])
-    setDropdownShowed(false)
-  }
-
-  const handleCheckboxClick = (
-    _: React.ChangeEvent<HTMLInputElement>,
-    idx: number
-  ): void => {
-    const copyOfSelectedChannels: boolean[] = [...selectedChannels]
-    copyOfSelectedChannels[idx] = !selectedChannels[idx]
-    setSelectedChannels(copyOfSelectedChannels)
-  }
-
-  useEffect(() => {
-    console.log("image updated")
-  }, [image])
 
   return (
     <>
@@ -133,32 +121,14 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
         space={spaces[selectedSpace]}
         selectedChannels={selectedChannels}
       />
+
       <EditWrapper>
         <Column>
-          <DropdownWrapper>
-            <DropdownButton data-type="secondary" onClick={openDropdown}>
-              <HorizontalArrow />
-              {selectedSpace}
-            </DropdownButton>
-            {isDropdownShowed && (
-              <Dropdown ref={dropdownRef}>
-                {Object.keys(spaces).map((spaceKey: string) => {
-                  const name: string = spaces[spaceKey as Spaces].name
-                  return (
-                    <DropdownItem
-                      key={name}
-                      selected={selectedSpace === name}
-                      onClick={event =>
-                        handleDropdownItemClick(event, name as Spaces)
-                      }
-                    >
-                      {name}
-                    </DropdownItem>
-                  )
-                })}
-              </Dropdown>
-            )}
-          </DropdownWrapper>
+          <Dropdown
+            items={Object.keys(spaces)}
+            activeItem={selectedSpace}
+            setActiveItem={handleItemChange}
+          />
           <DownloadButton onClick={handleClick}>
             {isLoading ? "Загрузка..." : error ? "Ошибка" : "Загрузить другое"}
             <input {...inputProps} />
@@ -166,18 +136,16 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
         </Column>
         <Column>
           <ChannelsList>
-            {spaces[selectedSpace].channels.map(
-              (channelName: string, idx: number) => (
-                <ChannelLabel key={channelName}>
-                  <ChannelCheckbox
-                    type="checkbox"
-                    checked={selectedChannels[idx]}
-                    onChange={event => handleCheckboxClick(event, idx)}
-                  />
-                  <ChannelName>Канал {channelName}</ChannelName>
-                </ChannelLabel>
-              )
-            )}
+            {spaces[selectedSpace].channels.map((channelName, index) => (
+              <ChannelLabel key={channelName}>
+                <ChannelCheckbox
+                  type="checkbox"
+                  checked={selectedChannels[index]}
+                  onChange={getCheckboxClickHandler(index)}
+                />
+                <ChannelName>Канал {channelName}</ChannelName>
+              </ChannelLabel>
+            ))}
           </ChannelsList>
         </Column>
         <Column>
@@ -198,73 +166,9 @@ const Column = styled.div`
   flex: 1;
 `
 
-const HorizontalArrow = styled.span`
-  display: block;
-  width: 10px;
-  height: 10px;
-  border: solid black;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg) translateY(-4px);
-`
-
-const DropdownWrapper = styled.div`
-  position: relative;
-`
-
-const DropdownButton = styled(Button)`
-  display: flex;
-  justify-content: left;
-  align-items: center;
-  gap: 8px;
-  padding-left: 20px;
-  padding-right: 10px;
-  width: 140px;
-`
-
-const Dropdown = styled.div`
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  left: 0;
-  bottom: -1px;
-  width: 100%;
-  padding: 16px 0;
-  background: #fff;
-  border-radius: 20px;
-  box-shadow: 4px 8px 20px 0 rgba(16, 0, 65, 0.15);
-  cursor: pointer;
-  ${text16Medium}
-`
-
-const DropdownItem = styled.div<IDropdownItemProps>`
-  position: relative;
-  margin-left: 32px;
-  padding: 6px;
-  &:hover {
-    color: var(--magenta);
-  }
-  ${({ selected }) =>
-    selected &&
-    `
-    color: var(--light-blue);
-    &::before {
-      content: '';
-      display: block;
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      border-style: solid;
-      border-color: var(--light-blue);
-      border-width: 2px 2px 0 0;
-      top: 50%;
-      left: -16px;
-      transform: rotate(45deg) translateY(-50%);
-    }
-  `}
-`
-
 const ChannelsList = styled.div`
   display: flex;
+  gap: 8px;
   flex-direction: column;
   padding: 0 10px;
 `
@@ -308,24 +212,31 @@ const ChannelLabel = styled.label`
   display: flex;
   align-items: center;
   position: relative;
-  margin-bottom: 5px;
   cursor: pointer;
   ${text14Medium};
 `
 
 const ChannelName = styled.span`
   margin-left: 8px;
-  text-wrap: nowrap;
+  word-wrap: nowrap;
 `
 
-const DownloadButton = styled(Button)`
-  width: 140px;
+const DownloadButton = styled.button`
+  cursor: pointer;
   background: transparent;
   border: none;
+  outline: none;
+
+  width: 100%;
+  padding: 0;
+
+  margin-top: 8px;
+
   text-decoration: underline;
   ${text14Medium}
+  color: var(--dark-blue);
 
-  &:focus-visible {
-    outline: none;
+  > input {
+    display: none;
   }
 `
