@@ -8,31 +8,45 @@ import GammaEditor from "./GammaEditor"
 import Canvas from "@/components/Canvas"
 import EditWrapper from "@/components/EditWrapper"
 import { useAppDispatch, useAppSelector } from "@/store"
-import { setImage } from "@/store/slices/image"
+import { setGamma, setImage } from "@/store/slices/image"
 import { gammaCorrection, inverseGammaCorrection } from "@/utils/functions"
 
 export default function Gamma() {
   const dispatch = useAppDispatch()
 
-  const image = useAppSelector(({ image }) => image)
+  const { image, gamma: currentGamma } = useAppSelector(({ image }) => image)
 
   const onConvertClick = useCallback(
     (gamma: number) => {
-      const newImage = inverseGammaCorrection(gammaCorrection(image, gamma), 0)
+      if (image) {
+        const initialImage = gammaCorrection(
+          inverseGammaCorrection(image, 0),
+          currentGamma
+        ) // get initial image, if it was already converted
 
-      dispatch(setImage(newImage))
+        if (gamma === 0) {
+          dispatch(setImage(initialImage))
+          dispatch(setGamma(0))
+        } else {
+          const newImage = gammaCorrection(
+            gammaCorrection(initialImage, gamma),
+            0
+          )
+
+          dispatch(setImage(newImage))
+          dispatch(setGamma(1 / gamma))
+        }
+      }
     },
-    [dispatch, image]
+    [currentGamma, dispatch, image]
   )
 
   const onAdjustClick = useCallback(
     (gamma: number) => {
       // correction to sRGB, then inverse gamma correction with `gamma` parameter
-      const newImage = inverseGammaCorrection(gammaCorrection(image, 0), gamma)
-
-      dispatch(setImage(newImage))
+      dispatch(setGamma(gamma))
     },
-    [dispatch, image]
+    [dispatch]
   )
 
   return (
@@ -62,6 +76,7 @@ export default function Gamma() {
               <br /> Но если вы его скачаете, то не увидите изменения.
             </span>
           }
+          autoupdate={true}
           onClick={onAdjustClick}
         />
       </StyledEditWrapper>

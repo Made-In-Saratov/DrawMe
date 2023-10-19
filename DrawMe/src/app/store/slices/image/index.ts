@@ -1,13 +1,9 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 
-import { IImage } from "@/store/slices/image/types"
+import { IImage, IImageSlice } from "@/store/slices/image/types"
 
-const initialState: IImage = {
-  pixels: [],
-  width: 0,
-  height: 0,
-  maxColorValue: 0,
-  isP6: false,
+const initialState: IImageSlice = {
+  image: null,
 
   gamma: 0,
 }
@@ -18,17 +14,17 @@ const imageSlice = createSlice({
   initialState,
   reducers: {
     setImage: (state, { payload }: PayloadAction<IImage>) => {
-      state.pixels = payload.pixels
-      state.width = payload.width
-      state.height = payload.height
-      state.maxColorValue = payload.maxColorValue
-      state.isP6 = payload.isP6
+      state.image = payload
 
-      state.gamma = payload.gamma
+      state.gamma = 0
+    },
+
+    setGamma(state, { payload }: PayloadAction<number>) {
+      state.gamma = payload
     },
   },
 })
 
-export const { setImage } = imageSlice.actions
+export const { setImage, setGamma } = imageSlice.actions
 
 export default imageSlice.reducer

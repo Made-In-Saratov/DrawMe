@@ -110,8 +110,6 @@ export default function useImageUpload(callback?: () => void) {
             height,
             maxColorValue,
             isP6,
-
-            gamma: 0,
           }
 
           dispatch(setImage(image))
