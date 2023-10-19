@@ -31,7 +31,7 @@ const tabs: ITabDescription[] = [
 ]
 
 export default function TabRounter() {
-  const [tab, setTab] = useState<TabT>("gamma")
+  const [tab, setTab] = useState<TabT>("home")
 
   const Tab = useMemo(() => {
     switch (tab) {
