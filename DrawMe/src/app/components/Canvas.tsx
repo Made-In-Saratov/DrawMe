@@ -2,22 +2,38 @@ import { useEffect, useRef } from "react"
 
 import styled from "styled-components"
 
+import { useAppSelector } from "@/store"
+import { IImage } from "@/store/slices/image/types"
 import { text20 } from "@/utils/fonts"
-import { IImage } from "@/utils/types/image"
+import { inverseGammaCorrection, gammaCorrection } from "@/utils/functions"
 
 interface ICanvasProps {
   image: IImage | null
 }
 
 export default function Canvas({ image }: ICanvasProps) {
+  const imageData = useAppSelector(({ image }) => image)
+
   const canvas = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     if (!canvas.current || !image) return
 
-    const { pixels: rawPixels, width, height, maxColorValue, isP6 } = image
+    const processedImage =
+      imageData.gamma !== 0
+        ? gammaCorrection(inverseGammaCorrection(image, 0), imageData.gamma)
+        : image
+
+    const {
+      pixels: rawPixels,
+      width,
+      height,
+      maxColorValue,
+      isP6,
+    } = processedImage
     canvas.current.width = width
     canvas.current.height = height
+    // FIXME: conversion doesn't work for 2 byte pixels
     const pixels = maxColorValue > 255 ? new Uint16Array(rawPixels) : rawPixels // convert to Uint16Array if maxColorValue > 255
     const norm = 255 / maxColorValue // normalization coefficient
 
@@ -41,10 +57,10 @@ export default function Canvas({ image }: ICanvasProps) {
         clampedArray[i * 4 + 3] = 255
       }
 
-    const imageData = new ImageData(clampedArray, width, height)
+    const drawData = new ImageData(clampedArray, width, height)
     const context = canvas.current.getContext("2d")
-    context?.putImageData(imageData, 0, 0)
-  }, [image])
+    context?.putImageData(drawData, 0, 0)
+  }, [image, imageData.gamma])
 
   if (!image)
     return (

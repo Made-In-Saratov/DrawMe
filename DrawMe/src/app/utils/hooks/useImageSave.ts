@@ -1,8 +1,10 @@
 import { MouseEventHandler, useCallback } from "react"
 
-import { IImage } from "@/utils/types/image"
+import { useAppSelector } from "@/store"
 
-export default function useImageSave(image: IImage | null) {
+export default function useImageSave() {
+  const image = useAppSelector(({ image }) => image.src)
+
   const handleClick = useCallback<MouseEventHandler<HTMLElement>>(() => {
     if (!image) return
 
@@ -13,7 +15,7 @@ export default function useImageSave(image: IImage | null) {
       }\n`
     )
 
-    const blob = new Blob([header, image.pixels], {
+    const blob = new Blob([header, Uint8Array.from(image.pixels)], {
       type: image.isP6 ? "image/x-portable-pixmap" : "image/x-portable-graymap",
     })
 

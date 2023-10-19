@@ -6,9 +6,13 @@ import {
   useState,
 } from "react"
 
-import { IImage } from "@/utils/types/image"
+import { useAppDispatch } from "@/store"
+import { setImage } from "@/store/slices/image"
+import { IImage } from "@/store/slices/image/types"
 
-export default function useImageUpload(callback: (image: IImage) => void) {
+export default function useImageUpload(callback?: () => void) {
+  const dispatch = useAppDispatch()
+
   const input = useRef<HTMLInputElement>(null)
 
   const [isLoading, setIsLoading] = useState(false)
@@ -101,14 +105,15 @@ export default function useImageUpload(callback: (image: IImage) => void) {
             )
 
           const image: IImage = {
-            pixels,
+            pixels: Array.from(pixels),
             width,
             height,
             maxColorValue,
             isP6,
           }
 
-          callback(image)
+          dispatch(setImage(image))
+          callback?.()
         } catch (error) {
           if (error instanceof Error) setError(error.message)
           reader.abort()
@@ -125,7 +130,7 @@ export default function useImageUpload(callback: (image: IImage) => void) {
 
       reader.readAsArrayBuffer(file)
     },
-    [callback]
+    [callback, dispatch]
   )
 
   const handleClick = useCallback<MouseEventHandler<HTMLElement>>(
