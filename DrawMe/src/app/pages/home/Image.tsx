@@ -13,7 +13,7 @@ export default function Image() {
 
   const handleSaveClick = useImageSave()
 
-  const image = useAppSelector(({ image }) => image.image)
+  const image = useAppSelector(({ image }) => image.src)
 
   const isDownloadDisabled = !image
 

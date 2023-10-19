@@ -3,7 +3,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit"
 import { IImage, IImageSlice } from "@/store/slices/image/types"
 
 const initialState: IImageSlice = {
-  image: null,
+  src: null,
 
   gamma: 0,
 }
@@ -14,7 +14,7 @@ const imageSlice = createSlice({
   initialState,
   reducers: {
     setImage: (state, { payload }: PayloadAction<IImage>) => {
-      state.image = payload
+      state.src = payload
 
       state.gamma = 0
     },

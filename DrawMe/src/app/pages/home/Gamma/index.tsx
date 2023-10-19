@@ -14,7 +14,9 @@ import { gammaCorrection, inverseGammaCorrection } from "@/utils/functions"
 export default function Gamma() {
   const dispatch = useAppDispatch()
 
-  const { image, gamma: currentGamma } = useAppSelector(({ image }) => image)
+  const { src: image, gamma: currentGamma } = useAppSelector(
+    ({ image }) => image
+  )
 
   const onConvertClick = useCallback(
     (gamma: number) => {
@@ -63,7 +65,7 @@ export default function Gamma() {
           tooltip={
             <span>
               После преобразования гаммы изображение на экране не изменится.
-              <br /> Если вы его скачаете, то увидите изменения.
+              Если вы его скачаете, то увидите изменения.
             </span>
           }
           onClick={onConvertClick}
@@ -72,8 +74,8 @@ export default function Gamma() {
           title="Назначить:"
           tooltip={
             <span>
-              После назначения гаммы изображение на экране изменится.
-              <br /> Но если вы его скачаете, то не увидите изменения.
+              После назначения гаммы изображение на экране изменится. Но если вы
+              его скачаете, то не увидите изменения.
             </span>
           }
           autoupdate={true}

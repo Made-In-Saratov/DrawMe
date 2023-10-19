@@ -3,7 +3,7 @@ import { MouseEventHandler, useCallback } from "react"
 import { useAppSelector } from "@/store"
 
 export default function useImageSave() {
-  const image = useAppSelector(({ image }) => image.image)
+  const image = useAppSelector(({ image }) => image.src)
 
   const handleClick = useCallback<MouseEventHandler<HTMLElement>>(() => {
     if (!image) return

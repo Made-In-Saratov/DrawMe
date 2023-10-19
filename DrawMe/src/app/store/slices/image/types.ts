@@ -7,7 +7,7 @@ export interface IImage {
 }
 
 export interface IImageSlice {
-  image: IImage | null
+  src: IImage | null
   /*
    * a value of 0 defaults to sRGB gamma.
    */
