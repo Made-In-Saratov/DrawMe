@@ -1,3 +1,4 @@
+export { countSelectedChannels } from "./countSelectedChannels"
 export {
   gammaCorrection,
   inverseGammaCorrection,

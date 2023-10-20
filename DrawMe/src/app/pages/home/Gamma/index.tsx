@@ -5,7 +5,6 @@ import styled from "styled-components"
 
 import GammaEditor from "./GammaEditor"
 
-import Canvas from "@/components/Canvas"
 import EditWrapper from "@/components/EditWrapper"
 import { useAppDispatch, useAppSelector } from "@/store"
 import { setGamma, setImage } from "@/store/slices/image"
@@ -14,41 +13,40 @@ import { gammaCorrection, inverseGammaCorrection } from "@/utils/functions"
 export default function Gamma() {
   const dispatch = useAppDispatch()
 
-  const { src: image, gamma: currentGamma } = useAppSelector(
-    ({ image }) => image
-  )
+  const { src: image, convertedGamma } = useAppSelector(({ image }) => image)
 
   const onConvertClick = useCallback(
     (gamma: number) => {
       if (image) {
-        const initialImage = gammaCorrection(
-          inverseGammaCorrection(image, 0),
-          currentGamma
+        const initialImage = inverseGammaCorrection(
+          gammaCorrection(image, 0),
+          convertedGamma
         ) // get initial image, if it was already converted
 
         if (gamma === 0) {
-          dispatch(setImage(initialImage))
-          dispatch(setGamma(0))
+          dispatch(setImage(initialImage)) // also sets gamma to 0
         } else {
           const newImage = gammaCorrection(
-            gammaCorrection(initialImage, gamma),
+            inverseGammaCorrection(initialImage, gamma),
             0
           )
 
           dispatch(setImage(newImage))
-          dispatch(setGamma(1 / gamma))
+          dispatch(
+            setGamma({
+              gamma,
+              convertedGamma: gamma,
+            })
+          )
         }
       }
     },
-    [currentGamma, dispatch, image]
+    [convertedGamma, dispatch, image]
   )
 
   const onAdjustClick = useCallback(
-    (gamma: number) => {
-      // correction to sRGB, then inverse gamma correction with `gamma` parameter
-      dispatch(setGamma(gamma))
-    },
-    [dispatch]
+    (gamma: number) => dispatch(setGamma({ gamma, convertedGamma })),
+    [convertedGamma, dispatch]
   )
 
   return (
@@ -56,8 +54,6 @@ export default function Gamma() {
       <Helmet>
         <title>Изменение гаммы</title>
       </Helmet>
-
-      <Canvas image={image} />
 
       <StyledEditWrapper>
         <GammaEditor

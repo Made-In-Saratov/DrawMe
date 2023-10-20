@@ -7,7 +7,7 @@ import { TabT } from "./types"
 
 import Button from "@/components/Button"
 import { header48, text14, text16 } from "@/utils/fonts"
-import useImageUpload from "@/utils/hooks/useImageUpoad"
+import useImageUpload from "@/utils/hooks/useImageUpload"
 
 interface IHomeProps {
   setTab: (tab: TabT) => void

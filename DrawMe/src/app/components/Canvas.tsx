@@ -1,66 +1,89 @@
-import { useEffect, useRef } from "react"
+import React, { useEffect, useRef } from "react"
 
 import styled from "styled-components"
 
 import { useAppSelector } from "@/store"
 import { IImage } from "@/store/slices/image/types"
 import { text20 } from "@/utils/fonts"
-import { inverseGammaCorrection, gammaCorrection } from "@/utils/functions"
+import {
+  inverseGammaCorrection,
+  gammaCorrection,
+  countSelectedChannels,
+} from "@/utils/functions"
+import { spaces } from "@/utils/spaces"
 
-interface ICanvasProps {
-  image: IImage | null
-}
-
-export default function Canvas({ image }: ICanvasProps) {
-  const imageData = useAppSelector(({ image }) => image)
+function Canvas() {
+  const {
+    space,
+    channels,
+    gamma,
+    src: image,
+  } = useAppSelector(({ image }) => image)
 
   const canvas = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     if (!canvas.current || !image) return
 
-    const processedImage =
-      imageData.gamma !== 0
-        ? gammaCorrection(inverseGammaCorrection(image, 0), imageData.gamma)
-        : image
+    const spaceDetails = spaces[space]
 
-    const {
-      pixels: rawPixels,
-      width,
-      height,
-      maxColorValue,
-      isP6,
-    } = processedImage
+    // const processedImage =
+    //   gamma !== 0
+    //     ? gammaCorrection(inverseGammaCorrection(image, 0), gamma)
+    //     : image
+
+    const { pixels, width, height, maxColorValue } = image
     canvas.current.width = width
     canvas.current.height = height
     // FIXME: conversion doesn't work for 2 byte pixels
-    const pixels = maxColorValue > 255 ? new Uint16Array(rawPixels) : rawPixels // convert to Uint16Array if maxColorValue > 255
+    if (maxColorValue > 255) throw new Error("2 byte pixels are not supported")
+    // TODO: add support for non-255 maxColorValue
     const norm = 255 / maxColorValue // normalization coefficient
+
+    const convertedPixels = new Array<number>(width * height * 3)
+
+    for (let i = 0; i < pixels.length; i += 3) {
+      if (countSelectedChannels(channels) === 1) {
+        const channelNumber = channels.indexOf(true)
+        convertedPixels[i] = pixels[i + channelNumber]
+        convertedPixels[i + 1] = pixels[i + channelNumber]
+        convertedPixels[i + 2] = pixels[i + channelNumber]
+      } else {
+        const converted = spaceDetails.reverseConverter([
+          channels[0] ? pixels[i] : 0,
+          channels[1] ? pixels[i + 1] : 0,
+          channels[2] ? pixels[i + 2] : 0,
+        ])
+        convertedPixels[i] = converted[0]
+        convertedPixels[i + 1] = converted[1]
+        convertedPixels[i + 2] = converted[2]
+      }
+    }
+
+    const convertedImage = {
+      ...image,
+      pixels: convertedPixels,
+    }
+
+    const processedImage =
+      gamma !== 0
+        ? gammaCorrection(inverseGammaCorrection(convertedImage, 0), gamma)
+        : convertedImage
 
     // clamped values are integers in range [0, 255]
     const clampedArray = new Uint8ClampedArray(width * height * 4)
 
-    // color
-    if (isP6)
-      for (let i = 0; i < width * height; i++) {
-        clampedArray[i * 4] = pixels[i * 3] * norm
-        clampedArray[i * 4 + 1] = pixels[i * 3 + 1] * norm
-        clampedArray[i * 4 + 2] = pixels[i * 3 + 2] * norm
-        clampedArray[i * 4 + 3] = 255
-      }
-    // grayscale
-    else
-      for (let i = 0; i < width * height; i++) {
-        clampedArray[i * 4] = pixels[i] * norm
-        clampedArray[i * 4 + 1] = pixels[i] * norm
-        clampedArray[i * 4 + 2] = pixels[i] * norm
-        clampedArray[i * 4 + 3] = 255
-      }
+    for (let i = 0; i < width * height; i++) {
+      clampedArray[i * 4] = processedImage.pixels[i * 3] * norm
+      clampedArray[i * 4 + 1] = processedImage.pixels[i * 3 + 1] * norm
+      clampedArray[i * 4 + 2] = processedImage.pixels[i * 3 + 2] * norm
+      clampedArray[i * 4 + 3] = 255
+    }
 
     const drawData = new ImageData(clampedArray, width, height)
     const context = canvas.current.getContext("2d")
     context?.putImageData(drawData, 0, 0)
-  }, [image, imageData.gamma])
+  }, [image, gamma, space, channels])
 
   if (!image)
     return (
@@ -79,7 +102,7 @@ export default function Canvas({ image }: ICanvasProps) {
 const Wrapper = styled.div`
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 4px 8px 20px 0px rgba(16, 0, 65, 0.15);
+  box-shadow: 4px 8px 20px 0 rgba(16, 0, 65, 0.15);
 
   width: fit-content;
   height: fit-content;
@@ -109,3 +132,5 @@ const NoImage = styled.div`
     text-align: center;
   }
 `
+
+export default React.memo(Canvas)

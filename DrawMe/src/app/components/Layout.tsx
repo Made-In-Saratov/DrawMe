@@ -1,3 +1,5 @@
+import React from "react"
+
 import styled from "styled-components"
 
 interface ILayoutProps {
@@ -12,4 +14,6 @@ const PageWrapper = styled.div`
   box-sizing: border-box;
   min-height: 100vh;
   height: max-content;
+
+  color: var(--dark-blue);
 `

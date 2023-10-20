@@ -90,7 +90,7 @@ export default function useImageUpload(callback?: () => void) {
               "Неверный формат файла. Максимальное значение цвета не может быть больше 65535"
             )
 
-          const pixels = uint8Array.slice(prevIndex + 1)
+          let pixels = uint8Array.slice(prevIndex + 1)
           const requiredLength =
             width * height * (isP6 ? 3 : 1) * (maxColorValue > 255 ? 2 : 1)
 
@@ -104,6 +104,16 @@ export default function useImageUpload(callback?: () => void) {
               `Неверное значение цвета пикселя. Максимальное значение цвета: ${maxColorValue}`
             )
 
+          if (!isP6) {
+            const newPixels = new Uint8Array(width * height * 3)
+            for (let i = 0; i < pixels.length; i++) {
+              newPixels[i * 3] = pixels[i]
+              newPixels[i * 3 + 1] = pixels[i]
+              newPixels[i * 3 + 2] = pixels[i]
+            }
+            pixels = newPixels
+          }
+
           const image: IImage = {
             pixels: Array.from(pixels),
             width,
@@ -112,6 +122,7 @@ export default function useImageUpload(callback?: () => void) {
             isP6,
           }
 
+          input.current!.value = "" // reset input value to allow uploading the same file
           dispatch(setImage(image))
           callback?.()
         } catch (error) {

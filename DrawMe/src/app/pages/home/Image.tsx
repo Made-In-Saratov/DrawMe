@@ -2,11 +2,10 @@ import { Helmet } from "react-helmet-async"
 import styled from "styled-components"
 
 import Button from "@/components/Button"
-import Canvas from "@/components/Canvas"
 import EditWrapper from "@/components/EditWrapper"
 import { useAppSelector } from "@/store"
 import useImageSave from "@/utils/hooks/useImageSave"
-import useImageUpload from "@/utils/hooks/useImageUpoad"
+import useImageUpload from "@/utils/hooks/useImageUpload"
 
 export default function Image() {
   const { inputProps, handleClick, isLoading, error } = useImageUpload()
@@ -22,8 +21,6 @@ export default function Image() {
       <Helmet>
         <title>Редактирование изображения</title>
       </Helmet>
-
-      <Canvas image={image} />
 
       <StyledEditWrapper>
         <Button data-type="secondary" onClick={handleClick}>
