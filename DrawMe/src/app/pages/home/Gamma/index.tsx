@@ -13,16 +13,14 @@ import { gammaCorrection, inverseGammaCorrection } from "@/utils/functions"
 export default function Gamma() {
   const dispatch = useAppDispatch()
 
-  const { src: image, gamma: currentGamma } = useAppSelector(
-    ({ image }) => image
-  )
+  const { src: image, convertedGamma } = useAppSelector(({ image }) => image)
 
   const onConvertClick = useCallback(
     (gamma: number) => {
       if (image) {
         const initialImage = inverseGammaCorrection(
           gammaCorrection(image, 0),
-          currentGamma
+          convertedGamma
         ) // get initial image, if it was already converted
 
         if (gamma === 0) {
@@ -34,16 +32,21 @@ export default function Gamma() {
           )
 
           dispatch(setImage(newImage))
-          dispatch(setGamma(gamma))
+          dispatch(
+            setGamma({
+              gamma,
+              convertedGamma: gamma,
+            })
+          )
         }
       }
     },
-    [currentGamma, dispatch, image]
+    [convertedGamma, dispatch, image]
   )
 
   const onAdjustClick = useCallback(
-    (gamma: number) => dispatch(setGamma(gamma)),
-    [dispatch]
+    (gamma: number) => dispatch(setGamma({ gamma, convertedGamma })),
+    [convertedGamma, dispatch]
   )
 
   return (

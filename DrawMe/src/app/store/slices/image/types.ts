@@ -24,4 +24,5 @@ export interface IImageSlice {
    * a value of 0 defaults to sRGB gamma.
    */
   gamma: number
+  convertedGamma: number
 }

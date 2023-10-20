@@ -9,6 +9,7 @@ const initialState: IImageSlice = {
   space: "RGB",
   channels: [true, true, true],
   gamma: 0,
+  convertedGamma: 0,
 }
 
 /* eslint-disable no-param-reassign */
@@ -20,6 +21,7 @@ const imageSlice = createSlice({
       state.src = payload
 
       state.gamma = 0
+      state.convertedGamma = 0
     },
 
     setSpace: (state, { payload }: PayloadAction<SpacesT>) => {
@@ -56,8 +58,12 @@ const imageSlice = createSlice({
       state.channels = payload
     },
 
-    setGamma(state, { payload }: PayloadAction<number>) {
-      state.gamma = payload
+    setGamma(
+      state,
+      { payload }: PayloadAction<{ gamma: number; convertedGamma: number }>
+    ) {
+      state.gamma = payload.gamma
+      state.convertedGamma = payload.convertedGamma
     },
   },
 })
