@@ -17,12 +17,9 @@ export default function useImageSave() {
         `P5\n${image.width} ${image.height}\n${image.maxColorValue}\n`
       )
 
-      const pixels = new Uint8Array(image.pixels.length)
-      for (let i = 0; i < image.pixels.length; i += 3) {
-        pixels[i / 3] =
-          (channels[0] ? image.pixels[i] : 0) +
-          (channels[1] ? image.pixels[i + 1] : 0) +
-          (channels[2] ? image.pixels[i + 2] : 0)
+      const pixels = new Uint8Array(image.pixels.length / 3)
+      for (let i = 0; i < image.pixels.length / 3; i++) {
+        pixels[i] = image.pixels[i * 3]
       }
 
       blob = new Blob([header, pixels], {

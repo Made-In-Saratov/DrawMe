@@ -40,24 +40,43 @@ function Canvas() {
     // TODO: add support for non-255 maxColorValue
     const norm = 255 / maxColorValue // normalization coefficient
 
+    const convertedPixels = new Array<number>(width * height * 3)
+
+    for (let i = 0; i < pixels.length; i += 3) {
+      if (countSelectedChannels(channels) === 1) {
+        const channelNumber = channels.indexOf(true)
+        convertedPixels[i] = pixels[i + channelNumber]
+        convertedPixels[i + 1] = pixels[i + channelNumber]
+        convertedPixels[i + 2] = pixels[i + channelNumber]
+      } else {
+        const converted = spaceDetails.reverseConverter([
+          channels[0] ? pixels[i] : 0,
+          channels[1] ? pixels[i + 1] : 0,
+          channels[2] ? pixels[i + 2] : 0,
+        ])
+        convertedPixels[i] = converted[0]
+        convertedPixels[i + 1] = converted[1]
+        convertedPixels[i + 2] = converted[2]
+      }
+    }
+
+    const convertedImage = {
+      ...image,
+      pixels: convertedPixels,
+    }
+
+    const processedImage =
+      gamma !== 0
+        ? gammaCorrection(inverseGammaCorrection(convertedImage, 0), gamma)
+        : convertedImage
+
     // clamped values are integers in range [0, 255]
     const clampedArray = new Uint8ClampedArray(width * height * 4)
 
     for (let i = 0; i < width * height; i++) {
-      if (countSelectedChannels(channels) === 1) {
-        clampedArray[i * 4] = pixels[i * 3 + channels.indexOf(true)]
-        clampedArray[i * 4 + 1] = pixels[i * 3 + channels.indexOf(true)]
-        clampedArray[i * 4 + 2] = pixels[i * 3 + channels.indexOf(true)]
-      } else {
-        const converted = spaceDetails.reverseConverter([
-          channels[0] ? pixels[i * 3] : 0,
-          channels[1] ? pixels[i * 3 + 1] : 0,
-          channels[2] ? pixels[i * 3 + 2] : 0,
-        ])
-        clampedArray[i * 4] = converted[0]
-        clampedArray[i * 4 + 1] = converted[1]
-        clampedArray[i * 4 + 2] = converted[2]
-      }
+      clampedArray[i * 4] = processedImage.pixels[i * 3] * norm
+      clampedArray[i * 4 + 1] = processedImage.pixels[i * 3 + 1] * norm
+      clampedArray[i * 4 + 2] = processedImage.pixels[i * 3 + 2] * norm
       clampedArray[i * 4 + 3] = 255
     }
 

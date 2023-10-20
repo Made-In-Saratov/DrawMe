@@ -20,22 +20,21 @@ export default function Gamma() {
   const onConvertClick = useCallback(
     (gamma: number) => {
       if (image) {
-        const initialImage = gammaCorrection(
-          inverseGammaCorrection(image, 0),
+        const initialImage = inverseGammaCorrection(
+          gammaCorrection(image, 0),
           currentGamma
         ) // get initial image, if it was already converted
 
         if (gamma === 0) {
-          dispatch(setImage(initialImage))
-          dispatch(setGamma(0))
+          dispatch(setImage(initialImage)) // also sets gamma to 0
         } else {
           const newImage = gammaCorrection(
-            gammaCorrection(initialImage, gamma),
+            inverseGammaCorrection(initialImage, gamma),
             0
           )
 
           dispatch(setImage(newImage))
-          dispatch(setGamma(1 / gamma))
+          dispatch(setGamma(gamma))
         }
       }
     },
@@ -43,10 +42,7 @@ export default function Gamma() {
   )
 
   const onAdjustClick = useCallback(
-    (gamma: number) => {
-      // correction to sRGB, then inverse gamma correction with `gamma` parameter
-      dispatch(setGamma(gamma))
-    },
+    (gamma: number) => dispatch(setGamma(gamma)),
     [dispatch]
   )
 
