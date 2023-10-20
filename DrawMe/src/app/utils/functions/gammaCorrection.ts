@@ -5,6 +5,7 @@ import { IImage } from "@/store/slices/image/types"
 /* eslint-disable no-param-reassign */
 export function gammaCorrection(image: IImage, gamma: number) {
   if (gamma === 0) return sRGBCorrection(image)
+
   return produce(image, draft => {
     if (image.isP6)
       for (let i = 0; i < draft.pixels.length; i += 3) {

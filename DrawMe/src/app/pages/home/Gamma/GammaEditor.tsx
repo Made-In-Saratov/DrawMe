@@ -48,7 +48,7 @@ export default function GammaEditor({
   }, [onClick, value])
 
   const isButtonDisabled =
-    !value || isNaN(Number(value)) || Number(value) < 0 || Number(value) > 10
+    !value || isNaN(Number(value)) || Number(value) < 0 || Number(value) > 100
 
   return (
     <Wrapper>
