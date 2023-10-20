@@ -127,6 +127,7 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
             <input {...inputProps} />
           </DownloadButton>
         </Column>
+
         <Column>
           <ChannelsList>
             {spaces[selectedSpace].channels.map((channelName, index) => (
@@ -140,6 +141,7 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
             ))}
           </ChannelsList>
         </Column>
+
         <Column>
           <Button
             data-type="primary"
