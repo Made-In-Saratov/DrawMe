@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react"
+import React, { useEffect, useRef } from "react"
 
 import styled from "styled-components"
 
@@ -12,7 +12,7 @@ import {
 } from "@/utils/functions"
 import { spaces } from "@/utils/spaces"
 
-export default function Canvas() {
+function Canvas() {
   const {
     space,
     channels,
@@ -122,3 +122,5 @@ const NoImage = styled.div`
     text-align: center;
   }
 `
+
+export default React.memo(Canvas)

@@ -6,6 +6,7 @@ import Home from "./Home"
 import Image from "./Image"
 import { ITabDescription, TabT } from "./types"
 
+import Canvas from "@/components/Canvas"
 import Navbar from "@/components/Navbar"
 import Gamma from "@/pages/home/Gamma"
 import Spaces from "@/pages/home/Spaces"
@@ -50,7 +51,7 @@ export default function TabRouter() {
   return (
     <Wrapper>
       {tab !== "home" && <Navbar tabs={tabs} current={tab} setTab={setTab} />}
-
+      {tab !== "home" && <Canvas />}
       <Tab setTab={setTab} />
     </Wrapper>
   )

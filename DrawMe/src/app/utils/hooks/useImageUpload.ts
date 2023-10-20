@@ -20,6 +20,7 @@ export default function useImageUpload(callback?: () => void) {
 
   const handleFileUpload = useCallback<ChangeEventHandler<HTMLInputElement>>(
     event => {
+      console.log(event)
       if (!event.target.files?.length) return
       const file = event.target.files[0]
 
@@ -112,6 +113,7 @@ export default function useImageUpload(callback?: () => void) {
             isP6,
           }
 
+          input.current!.value = "" // reset input value to allow uploading the same file
           dispatch(setImage(image))
           callback?.()
         } catch (error) {

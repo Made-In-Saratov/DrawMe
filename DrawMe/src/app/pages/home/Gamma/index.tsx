@@ -5,7 +5,6 @@ import styled from "styled-components"
 
 import GammaEditor from "./GammaEditor"
 
-import Canvas from "@/components/Canvas"
 import EditWrapper from "@/components/EditWrapper"
 import { useAppDispatch, useAppSelector } from "@/store"
 import { setGamma, setImage } from "@/store/slices/image"
@@ -56,8 +55,6 @@ export default function Gamma() {
       <Helmet>
         <title>Изменение гаммы</title>
       </Helmet>
-
-      <Canvas />
 
       <StyledEditWrapper>
         <GammaEditor

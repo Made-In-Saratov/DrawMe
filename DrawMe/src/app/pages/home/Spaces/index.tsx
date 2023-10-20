@@ -4,7 +4,6 @@ import { Helmet } from "react-helmet-async"
 import styled from "styled-components"
 
 import Button from "@/components/Button"
-import Canvas from "@/components/Canvas"
 import Checkbox from "@/components/Checkbox"
 import Dropdown from "@/components/Dropdown"
 import EditWrapper from "@/components/EditWrapper"
@@ -46,8 +45,6 @@ export default function Spaces() {
       <Helmet>
         <title>Изменение цветового пространства</title>
       </Helmet>
-
-      <Canvas />
 
       <StyledEditWrapper>
         <Column>
