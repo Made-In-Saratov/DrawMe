@@ -20,7 +20,6 @@ export default function useImageUpload(callback?: () => void) {
 
   const handleFileUpload = useCallback<ChangeEventHandler<HTMLInputElement>>(
     event => {
-      console.log(event)
       if (!event.target.files?.length) return
       const file = event.target.files[0]
 
