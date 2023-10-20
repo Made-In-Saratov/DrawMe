@@ -1,16 +1,17 @@
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useState } from "react"
 
 import { Helmet } from "react-helmet-async"
 import styled from "styled-components"
 
 import Button from "@/components/Button"
 import Canvas from "@/components/Canvas"
+import Checkbox from "@/components/Checkbox"
 import Dropdown from "@/components/Dropdown"
 import EditWrapper from "@/components/EditWrapper"
 import { SpacesT } from "@/pages/home/Spaces/types"
 import { spaces } from "@/pages/home/Spaces/utils/spaces"
 import { TabT } from "@/pages/home/types"
-import { text14Medium } from "@/utils/fonts"
+import { text14, text14Medium } from "@/utils/fonts"
 import { countNumberOfSelectedChannels } from "@/utils/functions"
 import useImageSave from "@/utils/hooks/useImageSave"
 import useImageUpload from "@/utils/hooks/useImageUpload"
@@ -20,14 +21,6 @@ interface ISpacesProps {
   image: IImage | null
   setImage: (image: IImage | null) => void
   setTab: (tab: TabT) => void
-}
-
-interface IDropdownItemProps {
-  selected: boolean
-}
-
-interface ICheckboxProps {
-  checked: boolean
 }
 
 export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
@@ -137,14 +130,13 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
         <Column>
           <ChannelsList>
             {spaces[selectedSpace].channels.map((channelName, index) => (
-              <ChannelLabel key={channelName}>
-                <ChannelCheckbox
-                  type="checkbox"
-                  checked={selectedChannels[index]}
-                  onChange={getCheckboxClickHandler(index)}
-                />
-                <ChannelName>Канал {channelName}</ChannelName>
-              </ChannelLabel>
+              <StyledCheckbox
+                key={channelName}
+                checked={selectedChannels[index]}
+                onChange={getCheckboxClickHandler(index)}
+              >
+                Канал {channelName}
+              </StyledCheckbox>
             ))}
           </ChannelsList>
         </Column>
@@ -173,54 +165,6 @@ const ChannelsList = styled.div`
   padding: 0 10px;
 `
 
-const ChannelCheckbox = styled.input<ICheckboxProps>`
-  appearance: none;
-  cursor: pointer;
-  width: 20px;
-  height: 20px;
-  border: 1.5px solid var(--magenta);
-  border-radius: 5px;
-  color: #ffffff;
-
-  ${({ checked }) =>
-    checked &&
-    `
-    position: relative;
-    border: none;
-    background: linear-gradient(
-            250deg,
-            var(--magenta) 10%,
-            var(--light-blue) 90%
-    );
-
-    &::before {
-      content: '';
-      display: block;
-      position: absolute;
-      left: 6.5px;
-      top: 1.5px;
-      width: 5px;
-      height: 10px;
-      border: solid white;
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg);
-    }
-  `}
-`
-
-const ChannelLabel = styled.label`
-  display: flex;
-  align-items: center;
-  position: relative;
-  cursor: pointer;
-  ${text14Medium};
-`
-
-const ChannelName = styled.span`
-  margin-left: 8px;
-  word-wrap: nowrap;
-`
-
 const DownloadButton = styled.button`
   cursor: pointer;
   background: transparent;
@@ -239,4 +183,15 @@ const DownloadButton = styled.button`
   > input {
     display: none;
   }
+`
+
+const StyledCheckbox = styled(Checkbox)`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  width: 100px; // fix width to prevent jumping
+
+  ${text14}
+  color: var(--dark-blue);
 `
