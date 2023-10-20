@@ -2,10 +2,9 @@ import { useEffect, useRef } from "react"
 
 import styled from "styled-components"
 
+import { ISpace } from "@/pages/home/Spaces/types"
 import { useAppSelector } from "@/store"
 import { IImage } from "@/store/slices/image/types"
-import { ISpace } from "@/pages/home/Spaces/types"
-import { spaces } from "@/pages/home/Spaces/utils/spaces"
 import { text20 } from "@/utils/fonts"
 import { countNumberOfSelectedChannels } from "@/utils/functions"
 import { inverseGammaCorrection, gammaCorrection } from "@/utils/functions"
@@ -46,53 +45,69 @@ export default function Canvas({ image }: ICanvasProps) {
     const clampedArray = new Uint8ClampedArray(width * height * 4)
 
     // color
+    // if (isP6)
+    //   for (let i = 0; i < width * height; i++) {
+    //     const converted = space.converter([
+    //       pixels[i * 3] * norm,
+    //       pixels[i * 3 + 1] * norm,
+    //       pixels[i * 3 + 2] * norm,
+    //     ])
+    //     let rgb = []
+    //     if (countNumberOfSelectedChannels(selectedChannels) === 1) {
+    //       const idx = selectedChannels?.findIndex(value => value)
+    //       rgb = space.reverseConverter([
+    //         converted[idx],
+    //         converted[idx],
+    //         converted[idx],
+    //       ])
+    //     } else {
+    //       rgb = space.reverseConverter([
+    //         selectedChannels[0] ? converted[0] : 0,
+    //         selectedChannels[1] ? converted[1] : 0,
+    //         selectedChannels[2] ? converted[2] : 0,
+    //       ])
+    //     }
+    //     clampedArray[i * 4] = rgb[0]
+    //     clampedArray[i * 4 + 1] = rgb[1]
+    //     clampedArray[i * 4 + 2] = rgb[2]
+    //     clampedArray[i * 4 + 3] = 255
+    //   }
+    // // grayscale
+    // else {
+    //   console.log("hey P5")
+    //   for (let i = 0; i < width * height; i++) {
+    //     const converted = space.converter([
+    //       pixels[i] * norm,
+    //       pixels[i] * norm,
+    //       pixels[i] * norm,
+    //     ])
+    //     const rgb = space.reverseConverter([
+    //       selectedChannels[0] ? converted[0] : 0,
+    //       selectedChannels[1] ? converted[1] : 0,
+    //       selectedChannels[2] ? converted[2] : 0,
+    //     ])
+    //     clampedArray[i * 4] = rgb[0]
+    //     clampedArray[i * 4 + 1] = rgb[1]
+    //     clampedArray[i * 4 + 2] = rgb[2]
+    //     clampedArray[i * 4 + 3] = 255
+    //   }
+    // }
+
     if (isP6)
       for (let i = 0; i < width * height; i++) {
-        const converted = space.converter([
-          pixels[i * 3] * norm,
-          pixels[i * 3 + 1] * norm,
-          pixels[i * 3 + 2] * norm,
-        ])
-        let rgb = []
-        if (countNumberOfSelectedChannels(selectedChannels) === 1) {
-          const idx = selectedChannels?.findIndex(value => value)
-          rgb = space.reverseConverter([
-            converted[idx],
-            converted[idx],
-            converted[idx],
-          ])
-        } else {
-          rgb = space.reverseConverter([
-            selectedChannels[0] ? converted[0] : 0,
-            selectedChannels[1] ? converted[1] : 0,
-            selectedChannels[2] ? converted[2] : 0,
-          ])
-        }
-        clampedArray[i * 4] = rgb[0]
-        clampedArray[i * 4 + 1] = rgb[1]
-        clampedArray[i * 4 + 2] = rgb[2]
+        clampedArray[i * 4] = pixels[i * 3] * norm
+        clampedArray[i * 4 + 1] = pixels[i * 3 + 1] * norm
+        clampedArray[i * 4 + 2] = pixels[i * 3 + 2] * norm
         clampedArray[i * 4 + 3] = 255
       }
     // grayscale
-    else {
-      console.log("hey P5")
+    else
       for (let i = 0; i < width * height; i++) {
-        const converted = space.converter([
-          pixels[i] * norm,
-          pixels[i] * norm,
-          pixels[i] * norm,
-        ])
-        const rgb = space.reverseConverter([
-          selectedChannels[0] ? converted[0] : 0,
-          selectedChannels[1] ? converted[1] : 0,
-          selectedChannels[2] ? converted[2] : 0,
-        ])
-        clampedArray[i * 4] = rgb[0]
-        clampedArray[i * 4 + 1] = rgb[1]
-        clampedArray[i * 4 + 2] = rgb[2]
+        clampedArray[i * 4] = pixels[i] * norm
+        clampedArray[i * 4 + 1] = pixels[i] * norm
+        clampedArray[i * 4 + 2] = pixels[i] * norm
         clampedArray[i * 4 + 3] = 255
       }
-    }
 
     const drawData = new ImageData(clampedArray, width, height)
     const context = canvas.current.getContext("2d")

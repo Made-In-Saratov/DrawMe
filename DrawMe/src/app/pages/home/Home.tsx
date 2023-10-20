@@ -19,7 +19,7 @@ export default function Home({ setTab }: IHomeProps) {
   const { inputProps, handleClick, isLoading, error } =
     useImageUpload(uploadCallback)
 
-  const navigateToImage = useCallback(() => setTab("spaces"), [setTab])
+  const navigateToImage = useCallback(() => setTab("image"), [setTab])
 
   return (
     <>

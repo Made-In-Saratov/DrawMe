@@ -10,20 +10,13 @@ import Dropdown from "@/components/Dropdown"
 import EditWrapper from "@/components/EditWrapper"
 import { SpacesT } from "@/pages/home/Spaces/types"
 import { spaces } from "@/pages/home/Spaces/utils/spaces"
-import { TabT } from "@/pages/home/types"
+import { useAppSelector } from "@/store"
 import { text14, text14Medium } from "@/utils/fonts"
 import { countNumberOfSelectedChannels } from "@/utils/functions"
 import useImageSave from "@/utils/hooks/useImageSave"
 import useImageUpload from "@/utils/hooks/useImageUpload"
-import { IImage } from "@/utils/types/image"
 
-interface ISpacesProps {
-  image: IImage | null
-  setImage: (image: IImage | null) => void
-  setTab: (tab: TabT) => void
-}
-
-export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
+export default function Spaces() {
   const [selectedSpace, setSelectedSpace] = useState<SpacesT>("RGB")
   const [selectedChannels, setSelectedChannels] = useState<boolean[]>([
     true,
@@ -31,18 +24,11 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
     true,
   ])
 
-  const uploadCallback = useCallback(
-    (image: IImage) => {
-      setImage(image)
-      setTab("spaces")
-    },
-    [setImage, setTab]
-  )
+  const image = useAppSelector(({ image }) => image.src)
 
-  const { inputProps, handleClick, isLoading, error } =
-    useImageUpload(uploadCallback)
+  const { inputProps, handleClick, isLoading, error } = useImageUpload()
 
-  const handleImageSave = (): IImage | null => {
+  const handleImageSave = () => {
     if (!image) return null
 
     const result = countNumberOfSelectedChannels(selectedChannels)
@@ -84,7 +70,7 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
     return image
   }
 
-  const handleSaveClick = useImageSave(handleImageSave())
+  const handleSaveClick = useImageSave()
 
   const getCheckboxClickHandler = useCallback(
     (index: number) => () =>
@@ -115,7 +101,7 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
         selectedChannels={selectedChannels}
       />
 
-      <EditWrapper>
+      <StyledEditWrapper>
         <Column>
           <Dropdown
             items={Object.keys(spaces)}
@@ -151,10 +137,17 @@ export default function Spaces({ image, setImage, setTab }: ISpacesProps) {
             Скачать изображение
           </Button>
         </Column>
-      </EditWrapper>
+      </StyledEditWrapper>
     </>
   )
 }
+
+const StyledEditWrapper = styled(EditWrapper)`
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  padding: 20px 24px;
+`
 
 const Column = styled.div`
   flex: 1;
