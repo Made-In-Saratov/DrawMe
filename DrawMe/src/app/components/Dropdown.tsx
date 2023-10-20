@@ -157,7 +157,9 @@ const DropdownItem = styled.button`
   outline: none;
 
   display: flex;
+  width: 100%;
   align-items: center;
+  padding: 0 8px;
 
   ${text16Medium};
 

@@ -1,4 +1,4 @@
-const RGBToHSL = (r: number, g: number, b: number): number[] => {
+export default function RGBToHSL(r: number, g: number, b: number) {
   const red = r / 255
   const green = g / 255
   const blue = b / 255
@@ -16,5 +16,3 @@ const RGBToHSL = (r: number, g: number, b: number): number[] => {
     : 0
   return [60 * h < 0 ? 60 * h + 360 : 60 * h, s, l]
 }
-
-export default RGBToHSL

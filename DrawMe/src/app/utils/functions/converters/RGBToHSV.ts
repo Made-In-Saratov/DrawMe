@@ -1,4 +1,4 @@
-const RGBToHSV = (r: number, g: number, b: number): number[] => {
+export default function RGBToHSV(r: number, g: number, b: number) {
   const red = r / 255
   const green = g / 255
   const blue = b / 255
@@ -12,7 +12,5 @@ const RGBToHSV = (r: number, g: number, b: number): number[] => {
       : v === green
       ? 2 + (blue - red) / n
       : 4 + (red - green) / n
-  return [60 * (h < 0 ? h + 6 : h), v && (n / v) * 100, v * 100]
+  return [60 * (h < 0 ? h + 6 : h), v && (n / v) * 255, v * 255]
 }
-
-export default RGBToHSV

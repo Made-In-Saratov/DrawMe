@@ -57,7 +57,7 @@ export default function Gamma() {
         <title>Изменение гаммы</title>
       </Helmet>
 
-      <Canvas image={image} />
+      <Canvas />
 
       <StyledEditWrapper>
         <GammaEditor

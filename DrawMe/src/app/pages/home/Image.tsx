@@ -23,7 +23,7 @@ export default function Image() {
         <title>Редактирование изображения</title>
       </Helmet>
 
-      <Canvas image={image} />
+      <Canvas />
 
       <StyledEditWrapper>
         <Button data-type="secondary" onClick={handleClick}>
