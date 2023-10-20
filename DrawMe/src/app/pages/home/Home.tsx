@@ -1,5 +1,6 @@
 import { useCallback } from "react"
 
+import { Helmet } from "react-helmet-async"
 import styled from "styled-components"
 
 import { TabT } from "./types"
@@ -7,21 +8,13 @@ import { TabT } from "./types"
 import Button from "@/components/Button"
 import { header48, text14, text16 } from "@/utils/fonts"
 import useImageUpload from "@/utils/hooks/useImageUpload"
-import { IImage } from "@/utils/types/image"
 
 interface IHomeProps {
-  setImage: (image: IImage | null) => void
   setTab: (tab: TabT) => void
 }
 
-export default function Home({ setImage, setTab }: IHomeProps) {
-  const uploadCallback = useCallback(
-    (image: IImage) => {
-      setImage(image)
-      setTab("image")
-    },
-    [setImage, setTab]
-  )
+export default function Home({ setTab }: IHomeProps) {
+  const uploadCallback = useCallback(() => setTab("image"), [setTab])
 
   const { inputProps, handleClick, isLoading, error } =
     useImageUpload(uploadCallback)
@@ -30,6 +23,10 @@ export default function Home({ setImage, setTab }: IHomeProps) {
 
   return (
     <>
+      <Helmet>
+        <title>Draw Me</title>
+      </Helmet>
+
       <MainWrapper>
         <h1>Draw Me</h1>
         <p>Лучший редактор изображений для спортивного программирования.</p>

@@ -7,8 +7,8 @@ import Image from "./Image"
 import { ITabDescription, TabT } from "./types"
 
 import Navbar from "@/components/Navbar"
+import Gamma from "@/pages/home/Gamma"
 import Spaces from "@/pages/home/Spaces"
-import { IImage } from "@/utils/types/image"
 import ColorIcon from "~/assets/ColorIcon"
 import GammaIcon from "~/assets/GammaIcon"
 import ImageIcon from "~/assets/ImageIcon"
@@ -34,14 +34,14 @@ const tabs: ITabDescription[] = [
 export default function TabRouter() {
   const [tab, setTab] = useState<TabT>("home")
 
-  const [image, setImage] = useState<IImage | null>(null)
-
   const Tab = useMemo(() => {
     switch (tab) {
       case "image":
         return Image
       case "spaces":
         return Spaces
+      case "gamma":
+        return Gamma
       default:
         return Home
     }
@@ -51,7 +51,7 @@ export default function TabRouter() {
     <Wrapper>
       {tab !== "home" && <Navbar tabs={tabs} current={tab} setTab={setTab} />}
 
-      <Tab image={image} setImage={setImage} setTab={setTab} />
+      <Tab setTab={setTab} />
     </Wrapper>
   )
 }
