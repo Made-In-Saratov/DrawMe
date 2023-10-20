@@ -70,8 +70,6 @@ export default function Canvas() {
         clampedArray[i * 4 + 3] = 255
       }
 
-    console.log(clampedArray)
-
     const drawData = new ImageData(clampedArray, width, height)
     const context = canvas.current.getContext("2d")
     context?.putImageData(drawData, 0, 0)

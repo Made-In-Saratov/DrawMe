@@ -1,9 +1,29 @@
+/* eslint-disable no-param-reassign */
 export default function HSLToRGB(h: number, s: number, l: number) {
-  const saturation = s
-  const lightness = l
-  const k = (n: number) => (n + h / 30) % 12
-  const a = saturation * Math.min(lightness, 1 - lightness)
-  const f = (n: number) =>
-    lightness - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))
-  return [255 * f(0), 255 * f(8), 255 * f(4)]
+  h /= 255
+  s /= 255
+  l /= 255
+
+  if (s === 0) {
+    const gray = l * 255
+    return [gray, gray, gray]
+  }
+
+  const hueToRgb = (p: number, q: number, t: number) => {
+    if (t < 0) t += 1
+    if (t > 1) t -= 1
+    if (t < 1 / 6) return p + (q - p) * 6 * t
+    if (t < 1 / 2) return q
+    if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6
+    return p
+  }
+
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s
+  const p = 2 * l - q
+
+  const r = hueToRgb(p, q, h + 1 / 3)
+  const g = hueToRgb(p, q, h)
+  const b = hueToRgb(p, q, h - 1 / 3)
+
+  return [r * 255, g * 255, b * 255]
 }

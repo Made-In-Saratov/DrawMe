@@ -1,18 +1,36 @@
+/* eslint-disable no-param-reassign */
 export default function RGBToHSL(r: number, g: number, b: number) {
-  const red = r / 255
-  const green = g / 255
-  const blue = b / 255
-  const m = Math.min(red, green, blue)
-  const M = Math.max(red, green, blue)
-  const c = M - m
-  const l = (m + M) / 2
-  const s = l === 0 || l === 1 ? 0 : c / (1 - Math.abs(2 * l - 1))
-  const h = s
-    ? M === red
-      ? (green - blue) / c
-      : M === green
-      ? 2 + (blue - red) / c
-      : 4 + (red - green) / c
-    : 0
-  return [60 * h < 0 ? 60 * h + 360 : 60 * h, s, l]
+  r /= 255
+  g /= 255
+  b /= 255
+
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+
+  let h = 1,
+    s = 0
+  const l = (max + min) / 2
+
+  if (max === min) {
+    h = s = 0 // achromatic
+  } else {
+    const d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0)
+        break
+      case g:
+        h = (b - r) / d + 2
+        break
+      case b:
+        h = (r - g) / d + 4
+        break
+    }
+
+    h /= 6
+  }
+
+  return [h * 255, s * 255, l * 255]
 }
