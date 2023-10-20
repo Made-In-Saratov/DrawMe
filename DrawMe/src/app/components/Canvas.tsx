@@ -32,7 +32,7 @@ function Canvas() {
     //     ? gammaCorrection(inverseGammaCorrection(image, 0), gamma)
     //     : image
 
-    const { pixels, width, height, maxColorValue, isP6 } = image
+    const { pixels, width, height, maxColorValue } = image
     canvas.current.width = width
     canvas.current.height = height
     // FIXME: conversion doesn't work for 2 byte pixels
@@ -43,32 +43,23 @@ function Canvas() {
     // clamped values are integers in range [0, 255]
     const clampedArray = new Uint8ClampedArray(width * height * 4)
 
-    if (isP6)
-      for (let i = 0; i < width * height; i++) {
-        if (countSelectedChannels(channels) === 1) {
-          clampedArray[i * 4] = pixels[i * 3 + channels.indexOf(true)]
-          clampedArray[i * 4 + 1] = pixels[i * 3 + channels.indexOf(true)]
-          clampedArray[i * 4 + 2] = pixels[i * 3 + channels.indexOf(true)]
-        } else {
-          const converted = spaceDetails.reverseConverter([
-            channels[0] ? pixels[i * 3] : 0,
-            channels[1] ? pixels[i * 3 + 1] : 0,
-            channels[2] ? pixels[i * 3 + 2] : 0,
-          ])
-          clampedArray[i * 4] = converted[0]
-          clampedArray[i * 4 + 1] = converted[1]
-          clampedArray[i * 4 + 2] = converted[2]
-        }
-        clampedArray[i * 4 + 3] = 255
+    for (let i = 0; i < width * height; i++) {
+      if (countSelectedChannels(channels) === 1) {
+        clampedArray[i * 4] = pixels[i * 3 + channels.indexOf(true)]
+        clampedArray[i * 4 + 1] = pixels[i * 3 + channels.indexOf(true)]
+        clampedArray[i * 4 + 2] = pixels[i * 3 + channels.indexOf(true)]
+      } else {
+        const converted = spaceDetails.reverseConverter([
+          channels[0] ? pixels[i * 3] : 0,
+          channels[1] ? pixels[i * 3 + 1] : 0,
+          channels[2] ? pixels[i * 3 + 2] : 0,
+        ])
+        clampedArray[i * 4] = converted[0]
+        clampedArray[i * 4 + 1] = converted[1]
+        clampedArray[i * 4 + 2] = converted[2]
       }
-    // grayscale
-    else
-      for (let i = 0; i < width * height; i++) {
-        clampedArray[i * 4] = pixels[i] * norm
-        clampedArray[i * 4 + 1] = pixels[i] * norm
-        clampedArray[i * 4 + 2] = pixels[i] * norm
-        clampedArray[i * 4 + 3] = 255
-      }
+      clampedArray[i * 4 + 3] = 255
+    }
 
     const drawData = new ImageData(clampedArray, width, height)
     const context = canvas.current.getContext("2d")

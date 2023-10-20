@@ -4,7 +4,7 @@ import { useAppSelector } from "@/store"
 import { countSelectedChannels } from "@/utils/functions"
 
 export default function useImageSave() {
-  const { channels, src: image } = useAppSelector(({ image }) => image)
+  const { space, channels, src: image } = useAppSelector(({ image }) => image)
 
   const handleClick = useCallback<MouseEventHandler<HTMLElement>>(() => {
     if (!image) return
@@ -12,7 +12,23 @@ export default function useImageSave() {
     const encoder = new TextEncoder()
     let blob: Blob
 
-    if (countSelectedChannels(channels) === 1) {
+    if (!image.isP6) {
+      const header = encoder.encode(
+        `P5\n${image.width} ${image.height}\n${image.maxColorValue}\n`
+      )
+
+      const pixels = new Uint8Array(image.pixels.length)
+      for (let i = 0; i < image.pixels.length; i += 3) {
+        pixels[i / 3] =
+          (channels[0] ? image.pixels[i] : 0) +
+          (channels[1] ? image.pixels[i + 1] : 0) +
+          (channels[2] ? image.pixels[i + 2] : 0)
+      }
+
+      blob = new Blob([header, pixels], {
+        type: "image/x-portable-graymap",
+      })
+    } else if (countSelectedChannels(channels) === 1) {
       const header = encoder.encode(
         `P5\n${image.width} ${image.height}\n${image.maxColorValue}\n`
       )
@@ -28,9 +44,7 @@ export default function useImageSave() {
       })
     } else {
       const header = encoder.encode(
-        `P${image.isP6 ? "6" : "5"}\n${image.width} ${image.height}\n${
-          image.maxColorValue
-        }\n`
+        `P6\n${image.width} ${image.height}\n${image.maxColorValue}\n`
       )
 
       const pixels = new Uint8Array(image.pixels.length)
@@ -41,21 +55,21 @@ export default function useImageSave() {
       }
 
       blob = new Blob([header, pixels], {
-        type: image.isP6
-          ? "image/x-portable-pixmap"
-          : "image/x-portable-graymap",
+        type: "image/x-portable-pixmap",
       })
     }
 
     const link = document.createElement("a")
     link.href = URL.createObjectURL(blob)
-    link.download = `image.${image.isP6 ? "ppm" : "pgm"}`
+    link.download = `image_${space}.${
+      image.isP6 || countSelectedChannels(channels) === 1 ? "ppm" : "pgm"
+    }`
 
     link.style.display = "none"
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-  }, [channels, image])
+  }, [channels, image, space])
 
   return handleClick
 }

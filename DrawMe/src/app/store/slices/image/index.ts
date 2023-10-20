@@ -43,6 +43,7 @@ const imageSlice = createSlice({
           )
 
         state.src.pixels = newPixels
+        state.src.isP6 = true
       }
 
       state.space = payload
