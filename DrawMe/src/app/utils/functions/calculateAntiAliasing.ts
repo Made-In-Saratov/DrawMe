@@ -342,6 +342,106 @@ export function calculateAntiAliasing(
     return 0
   }
 
+  const containsAlongAxis = (point: IPoint): boolean => {
+    return (
+      point.x >= lt.x && point.x <= rt.x && point.y >= lt.y && point.y <= lb.y
+    )
+  }
+
+  const countPercentageAlongAxis = (pixel: IPoint): number => {
+    const pixelT: number = pixel.y - 0.5
+    const pixelB: number = pixel.y + 0.5
+    const pixelL: number = pixel.x - 0.5
+    const pixelR: number = pixel.x + 0.5
+
+    const pixLT: IPoint = {
+      x: pixelL,
+      y: pixelT,
+    }
+    const pixRT: IPoint = {
+      x: pixelR,
+      y: pixelT,
+    }
+    const pixLB: IPoint = {
+      x: pixelL,
+      y: pixelB,
+    }
+    const pixRB: IPoint = {
+      x: pixelR,
+      y: pixelB,
+    }
+
+    const LTin: boolean = containsAlongAxis(pixLT)
+    const RTin: boolean = containsAlongAxis(pixRT)
+    const LBin: boolean = containsAlongAxis(pixLB)
+    const RBin: boolean = containsAlongAxis(pixRB)
+
+    let k: number
+
+    // 4 booleans are true
+
+    if (LTin && RTin && LBin && RBin) {
+      return 1
+    }
+
+    // 2 booleans are true
+
+    if (LTin && RTin && !LBin && !RBin) {
+      if (start.x === end.x) {
+        return 0.5
+      }
+      if (start.y === end.y) {
+        k = dist - 0.5
+        return k - Math.floor(k)
+      }
+    }
+    if (LTin && !RTin && LBin && !RBin) {
+      if (start.x === end.x) {
+        k = dist - 0.5
+        return k - Math.floor(k)
+      }
+      if (start.y === end.y) {
+        return 0.5
+      }
+    }
+    if (!LTin && RTin && !LBin && RBin) {
+      if (start.x === end.x) {
+        k = dist - 0.5
+        return k - Math.floor(k)
+      }
+      if (start.y === end.y) {
+        return 0.5
+      }
+    }
+
+    // 1 boolean is true
+
+    if (Number(LTin) + Number(RTin) + Number(LBin) + Number(RBin) === 1) {
+      k = dist - 0.5
+      return (k - Math.floor(k)) * 0.5
+    }
+
+    // 0 booleans are true
+
+    if (start.x === end.x) {
+      if (pixelL <= lt.x) {
+        return dist * 2
+      } else {
+        return 0
+      }
+    }
+
+    if (start.y === end.y) {
+      if (pixelT <= lt.y) {
+        return dist * 2
+      } else {
+        return 0
+      }
+    }
+
+    return 0
+  }
+
   const dist = lineWidth / 2
   const start = points[0].x < points[1].x ? points[0] : points[1]
   const end = points[0].x > points[1].x ? points[0] : points[1]
