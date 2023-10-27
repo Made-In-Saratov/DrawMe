@@ -4,6 +4,7 @@ const defaultPointValue: IPoint = { x: -1, y: -1 }
 
 export function calculateAntiAliasing(
   pixels: number[],
+  canvasLength: number,
   points: IPoint[],
   lineColor: number[],
   lineWidth: number,
@@ -473,6 +474,9 @@ export function calculateAntiAliasing(
   let aL: number, bL: number
   let aR: number, bR: number
 
+  // flag for defining case
+  let isFirstCase: boolean = true
+
   const calcFunctions = (r: IPoint, l: IPoint): number[] => {
     const a: number = (r.y - l.y) / (r.x - l.x)
     const b: number = r.x * r.y - l.x * r.y
@@ -530,6 +534,8 @@ export function calculateAntiAliasing(
     rb.y = end.y - d.y
 
     calcCoeffs()
+
+    isFirstCase = false
   }
 
   // third case
@@ -547,5 +553,39 @@ export function calculateAntiAliasing(
     rb.y = end.y + d.y
 
     calcCoeffs()
+
+    isFirstCase = false
   }
+
+  const calcPixelPosition = (pixelId: number) => {
+    return {
+      x: pixelId / canvasLength,
+      y: pixelId % canvasLength,
+    }
+  }
+
+  const mixColor = (
+    backgroundColor: number,
+    lineColor: number,
+    share: number
+  ): number => {
+    return Math.round(
+      backgroundColor * (1 - lineOpacity * share) +
+        lineColor * lineOpacity * share
+    )
+  }
+
+  const newPixels = [...pixels]
+
+  for (let i = 0; i < pixels.length; i += 3) {
+    const point = calcPixelPosition(i)
+    const share = isFirstCase
+      ? countPercentageAlongAxis(point)
+      : countPercentageBasic(point)
+    for (let j = 0; j < 3; j += 1) {
+      newPixels[j] = mixColor(pixels[j], lineColor[j], share)
+    }
+  }
+
+  return newPixels
 }
