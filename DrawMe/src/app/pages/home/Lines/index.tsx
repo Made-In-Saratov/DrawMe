@@ -1,12 +1,17 @@
-import React, { ChangeEventHandler, useCallback, useState } from "react"
+import React, { ChangeEventHandler, useCallback, useRef, useState } from "react"
 
+import { produce } from "immer"
 import { Helmet } from "react-helmet-async"
 import styled from "styled-components"
 
+import Canvas from "@/components/Canvas"
 import EditWrapper from "@/components/EditWrapper"
 import Input from "@/components/Input"
-import { useAppSelector } from "@/store"
+import { useAppDispatch, useAppSelector } from "@/store"
+import { setImage } from "@/store/slices/image"
+import { IImage, IPoint } from "@/store/slices/image/types"
 import { text16, text16Medium } from "@/utils/fonts"
+import { calculateAntiAliasing } from "@/utils/functions/calculateAntiAliasing"
 import { spaces } from "@/utils/spaces"
 
 interface IColorSquareProps {
@@ -14,11 +19,17 @@ interface IColorSquareProps {
 }
 
 export default function Lines() {
+  const dispatch = useAppDispatch()
   const space = useAppSelector(({ image }) => image.space)
+  const { src: image } = useAppSelector(({ image }) => image)
 
   const [channelValues, setChannelValues] = useState<number[]>([0, 0, 0])
   const [width, setWidth] = useState<number>(0)
   const [opacity, setOpacity] = useState<number>(1)
+  const [points, setPoints] = useState<IPoint[]>([])
+  const [isSelectedFirstPoint, setSelectedFirstPoint] = useState<boolean>(false)
+
+  const canvas = useRef<HTMLCanvasElement>(null)
 
   const handleColorInput = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -40,11 +51,52 @@ export default function Lines() {
     []
   )
 
+  const getCursorPosition = (
+    event: React.MouseEvent<HTMLCanvasElement>,
+    canvas: React.RefObject<HTMLCanvasElement>
+  ): void => {
+    console.log(event.clientX, event.clientY)
+    console.log(canvas.current?.getBoundingClientRect())
+    const rect = canvas.current?.getBoundingClientRect()
+    if (!rect || !canvas.current || !image) return
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    const newPoint = {
+      x: x,
+      y: y,
+    }
+    if (isSelectedFirstPoint) {
+      setPoints([points[0], newPoint])
+      setSelectedFirstPoint(false)
+      const newImage = produce(image, draft => {
+        if (!draft || !image || !canvas.current) return
+        const newPixels = calculateAntiAliasing(
+          image.pixels,
+          canvas.current.width,
+          [points[0], newPoint],
+          channelValues,
+          width,
+          opacity
+        )
+        console.log(newPixels)
+        draft.pixels = newPixels
+      })
+      console.log(image.pixels)
+      if (!newImage) return
+      dispatch(setImage(newImage))
+    } else {
+      setPoints([newPoint, points[1]])
+      setSelectedFirstPoint(true)
+    }
+  }
+
   return (
     <>
       <Helmet>
         <title>Отрисовка линий</title>
       </Helmet>
+
+      <Canvas onClickHandler={getCursorPosition} />
 
       <StyledEditWrapper>
         <OptionSelectorWrapper>

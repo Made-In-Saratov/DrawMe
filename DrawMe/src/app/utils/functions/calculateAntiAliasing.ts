@@ -329,6 +329,8 @@ export function calculateAntiAliasing(
 
     x1 = (pixelT - bL) / aL // TODO
     x2 = (pixelT - bR) / aR
+    x1 = (pixelT - bL) / aL
+    x2 = (pixelT - bL) / aL
     x3 = (pixelT - bT) / aT
     x4 = (pixelT - bB) / aB
 
@@ -446,29 +448,29 @@ export function calculateAntiAliasing(
   const dist = lineWidth / 2
   const start = points[0].x < points[1].x ? points[0] : points[1]
   const end = points[0].x > points[1].x ? points[0] : points[1]
-  const d: IPoint = defaultPointValue
-  let tanAlpha: number
+  const d: IPoint = { ...defaultPointValue }
+  let cosAlpha: number
   let sinAlpha: number
   if (start.y !== end.y) {
-    tanAlpha = (end.x - start.x) / Math.abs(end.y - start.y)
-    sinAlpha =
-      (end.x - start.x) /
-      Math.sqrt(
-        (end.x - start.x) * (end.x - start.x) +
-          (end.y - start.y) * (end.y - start.y)
-      )
+    const len = Math.sqrt(
+      (end.x - start.x) * (end.x - start.x) +
+        (end.y - start.y) * (end.y - start.y)
+    )
+    cosAlpha = Math.abs(end.y - start.y) / len
+    sinAlpha = (end.x - start.x) / len
+
     d.y = dist * sinAlpha
-    d.x = (dist * tanAlpha) / sinAlpha
+    d.x = dist * cosAlpha
   } else {
     d.y = dist
     d.x = 0
   }
 
   // line rectangle points
-  const lt: IPoint = defaultPointValue
-  const rt: IPoint = defaultPointValue
-  const lb: IPoint = defaultPointValue
-  const rb: IPoint = defaultPointValue
+  const lt: IPoint = { ...defaultPointValue }
+  const rt: IPoint = { ...defaultPointValue }
+  const lb: IPoint = { ...defaultPointValue }
+  const rb: IPoint = { ...defaultPointValue }
   let aT: number, bT: number
   let aB: number, bB: number
   let aL: number, bL: number
@@ -477,17 +479,25 @@ export function calculateAntiAliasing(
   // flag for defining case
   let isFirstCase: boolean = true
 
-  const calcFunctions = (r: IPoint, l: IPoint): number[] => {
-    const a: number = (r.y - l.y) / (r.x - l.x)
-    const b: number = r.x * r.y - l.x * r.y
+  const calcFunctions = (x1: IPoint, x2: IPoint): number[] => {
+    const a: number = (x1.y - x2.y) / (x1.x - x2.x)
+    const b: number = (x1.x * x2.y - x2.x * x1.y) / (x1.x - x2.x)
     return [a, b]
   }
 
   const calcCoeffs = () => {
-    ;[aT, bT] = calcFunctions(rt, lt)
-    ;[aB, bB] = calcFunctions(rb, lb)
-    ;[aL, bL] = calcFunctions(lt, lb)
-    ;[aR, bR] = calcFunctions(rt, rb)
+    const aTbT: number[] = calcFunctions(rt, lt)
+    aT = aTbT[0]
+    bT = aTbT[1]
+    const aBbB: number[] = calcFunctions(rb, lb)
+    aB = aBbB[0]
+    bB = aBbB[1]
+    const aLbL: number[] = calcFunctions(lt, lb)
+    aL = aLbL[0]
+    bL = aLbL[1]
+    const aRbR: number[] = calcFunctions(rt, rb)
+    aR = aRbR[0]
+    bR = aRbR[1]
   }
 
   // first case
@@ -559,8 +569,8 @@ export function calculateAntiAliasing(
 
   const calcPixelPosition = (pixelId: number) => {
     return {
-      x: pixelId / canvasLength,
-      y: pixelId % canvasLength,
+      x: pixelId % canvasLength,
+      y: Math.ceil(pixelId / canvasLength),
     }
   }
 
