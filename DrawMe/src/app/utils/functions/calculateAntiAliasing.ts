@@ -55,6 +55,7 @@ export function calculateAntiAliasing(
     const RTin: boolean = contains(pixRT)
     const LBin: boolean = contains(pixLB)
     const RBin: boolean = contains(pixRB)
+    if (!(LTin && RTin && LBin && RBin || !LTin && !RTin && !LBin && !RBin)) console.log(`cX: ${pixel.x}, cY: ${pixel.y}, LTin: ${LTin}, RTin: ${RTin}, RBin: ${RBin}, LBin: ${LBin}`)
 
     let x1: number, y1: number, x2: number, y2: number, x3: number, y3: number
 
@@ -80,7 +81,7 @@ export function calculateAntiAliasing(
       x1 = (pixelT - bR) / aR
       y1 = pixelT
       x2 = pixelR
-      y2 = aR * x2 + bT
+      y2 = aR * x2 + bR
       x3 = pixRT.x
       y3 = pixRT.y
       return 1 - calcTriangleArea(x1, y1, x2, y2, x3, y3)
@@ -97,7 +98,7 @@ export function calculateAntiAliasing(
     }
 
     if (LTin && RTin && !LBin && RBin) {
-      x1 = (pixelL - bL) / aL
+      x1 = (pixelB - bL) / aL
       y1 = pixelB
       x2 = pixelL
       y2 = aL * x2 + bL
@@ -199,136 +200,123 @@ export function calculateAntiAliasing(
 
     // 1 boolean is true
 
-    let xC: number, x4: number, y4: number, x5: number, y5: number
+    let xC: number, xK: number, best1x: number, best2x: number, best1y: number, best2y: number, x4: number, y4: number, x5: number, y5: number
 
     if (LTin && !RTin && !LBin && !RBin) {
-      xC = (pixelB - bL) / aL
-      if (xC <= rb.x) {
-        x1 = pixelL
-        y1 = aL * pixelL + bL
-        x2 = lb.x
-        y2 = lb.y
-        x3 = (pixelB - bL) / aL
-        y3 = pixelB
-        const firstArea = calcTriangleArea(x1, y1, x2, y2, x3, y3)
-        x4 = (pixelB - bR) / aR
-        y4 = pixelB
-        x5 = (pixelT - bR) / aR
-        y5 = pixelT
-        return 1 - firstArea - ((rb.x - x4) * (rt.x - x5)) / 2
-      } else {
-        x1 = (pixelT - bR) / aR
-        y1 = pixelT
-        x2 = rt.x
-        y2 = rt.y
-        x3 = pixelR
-        y3 = aR * x3 + bR
-        const firstArea = calcTriangleArea(x1, y1, x2, y3, x3, y3)
-        x4 = pixelR
-        y4 = aL * x4 + bL
-        x5 = pixelL
-        y5 = aL * x5 + bL
-        return 1 - firstArea - ((rb.y - y4) * (lb.y - y5)) / 2
-      }
+      x1 = (pixelT - bR) / aR
+      y1 = pixelT
+      x2 = (pixelT - bB) / aB
+      y2 = pixelT
+      best1x = x1 < x2 ? x1 : x2
+      best1y = best1x === x1 ? y1 : y2
+      x3 = pixelL
+      y3 = aL * x3 + bL
+      x4 = pixelL
+      y4 = aB * x4 + bB
+      best2y = y3 < y4 ? y3 : y4
+      best2x = best2y === y3 ? x3 : x4
+      x5 = pixLT.x
+      y5 = pixLT.y
+      console.log(`p1: ${best1x},${best1y} | p2: ${best2x},${best2y} | p3: ${x5},${y5}`)
+      return calcTriangleArea(best1x, best1y, best2x, best2y, x5, y5)
     }
 
     if (!LTin && RTin && !LBin && !RBin) {
-      xC = (pixelB - bL) / aL
-      if (xC < lb.x) {
-        x1 = pixelL
-        y1 = aT * pixelL + bT
-        x2 = lt.x
-        y2 = lt.y
-        x3 = (pixelT - bT) / aT
-        y3 = pixelT
-        const firstArea = calcTriangleArea(x1, y1, x2, y2, x3, y3)
-        x4 = pixelR
-        y4 = aB * x4 + bB
-        x5 = pixelL
-        y5 = aB * x5 + bB
-        return 1 - firstArea - ((lb.y - y5) * (rb.y - y4)) / 2
-      } else {
-        x1 = pixelR
-        y1 = aB * pixelL + bB
-        x2 = (pixelB - bB) / aB
-        y2 = pixelB
-        x3 = rb.x
-        y3 = rb.y
-        const firstArea = calcTriangleArea(x1, y1, x2, y2, x3, y3)
-        x4 = (pixelB - bT) / aT
-        y4 = pixelB
-        x5 = (pixelT - bT) / aT
-        y5 = pixelT
-        return 1 - firstArea - ((x5 - lt.x) * (x4 - lb.x)) / 2
-      }
+      x1 = (pixelT - bT) / aT
+      y1 = pixelT
+      x2 = (pixelT - bL) / aL
+      y2 = pixelT
+      best1x = x1 > x2 ? x1 : x2
+      best1y = best1x === x1 ? y1 : y2
+      x3 = pixelR
+      y3 = aL * x3 + bL
+      x4 = pixelR
+      y4 = aB * x4 + bB
+      best2y = y3 < y4 ? y3 : y4
+      best2x = best2y === y3 ? x3 : x4
+      x5 = pixRT.x
+      y5 = pixRT.y
+      console.log(`p1: ${best1x},${best1y} | p2: ${best2x},${best2y} | p3: ${x5},${y5}`)
+      return calcTriangleArea(best1x, best1y, best2x, best2y, x5, y5)
     }
 
     if (!LTin && !RTin && !LBin && RBin) {
-      xC = (pixelT - bR) / aR
-      if (xC >= lt.x) {
-        x1 = (pixelT - bR) / aR
-        y1 = pixelT
-        x2 = pixelR
-        y2 = aR * x2 + bR
-        x3 = rt.x
-        y3 = rt.y
-        const firstArea = calcTriangleArea(x1, y1, x2, y2, x3, y3)
-        x4 = (pixelB - bL) / aL
-        y4 = pixelB
-        x5 = (pixelT - bL) / aL
-        y5 = pixelT
-        return 1 - firstArea - ((x5 - lt.x) * (x4 - lb.x)) / 2
-      } else {
-        x1 = (pixelB - bL) / aL
-        y1 = pixelB
-        x2 = pixelL
-        y2 = aL * x2 + bL
-        x3 = lb.x
-        y3 = lb.y
-        const firstArea = calcTriangleArea(x1, y1, x2, y2, x3, y3)
-        x4 = pixelL
-        y4 = aR * x4 + bR
-        x5 = pixelR
-        y5 = aR * x5 + bR
-        return 1 - firstArea - ((y5 - lt.y) * (y4 - rt.y)) / 2
-      }
+      x1 = (pixelB - bT) / aT
+      y1 = pixelB
+      x2 = (pixelB - bL) / aL
+      y2 = pixelB
+      best1x = x1 > x2 ? x1 : x2
+      best1y = best1x === x1 ? y1 : y2
+      x3 = pixelR
+      y3 = aT * x3 + bT
+      x4 = pixelR
+      y4 = aR * x4 + bR
+      best2y = y3 > y4 ? y3 : y4
+      best2x = best2y === y3 ? x3 : x4
+      x5 = pixRB.x
+      y5 = pixRB.y
+      console.log(`p1: ${best1x},${best1y} | p2: ${best2x},${best2y} | p3: ${x5},${y5}`)
+      return calcTriangleArea(best1x, best1y, best2x, best2y, x5, y5)
+      // xC = (pixelT - bR) / aR
+      // xK = (pixelB - bT) / aT
+      // if (xK >= pixLB.x && xK <= pixRB.x) {
+      //   x1 = (pixelB - bT) / aT
+      //   y1 = pixelB
+      //   x2 = pixRB.x
+      //   y2 = pixRB.y
+      //   x3 = pixelR
+      //   y3 = aT * x3 + bT
+      //   return 1 - calcTriangleArea(x1, y1, x2, y2, x3, y3)
+      // }
+      // if (xC >= pixLT.x) {
+      //   x1 = (pixelT - bR) / aR
+      //   y1 = pixelT
+      //   x2 = pixelR
+      //   y2 = aR * x2 + bR
+      //   x3 = pixRT.x
+      //   y3 = pixRT.y
+      //   const firstArea = calcTriangleArea(x1, y1, x2, y2, x3, y3)
+      //   x4 = (pixelB - bL) / aL
+      //   y4 = pixelB
+      //   x5 = (pixelT - bL) / aL
+      //   y5 = pixelT
+      //   return 1 - firstArea - ((x5 - pixLT.x) * (x4 - pixLB.x)) / 2
+      // } else {
+      //   x1 = (pixelB - bL) / aL
+      //   y1 = pixelB
+      //   x2 = pixelL
+      //   y2 = aL * x2 + bL
+      //   x3 = pixLB.x
+      //   y3 = pixLB.y
+      //   const firstArea = calcTriangleArea(x1, y1, x2, y2, x3, y3)
+      //   x4 = pixelL
+      //   y4 = aR * x4 + bR
+      //   x5 = pixelR
+      //   y5 = aR * x5 + bR
+      //   return 1 - firstArea - ((y5 - pixLT.y) * (y4 - pixRT.y)) / 2
+      // }
     }
 
     if (!LTin && !RTin && LBin && !RBin) {
-      xC = (pixelT - bT) / aT
-      if (xC > rt.x) {
-        x1 = pixelR
-        y1 = aB * x1 + bB
-        x2 = rb.x
-        y2 = rb.y
-        x3 = (pixelB - bB) / aB
-        y3 = pixelB
-        const firstArea = calcTriangleArea(x1, y1, x2, y2, x3, y3)
-        x4 = pixelL
-        y4 = aT * x4 + bT
-        x5 = pixelR
-        y5 = aT * x5 + bT
-        return 1 - firstArea - ((y5 - rt.y) * (y4 - lt.y)) / 2
-      } else {
-        x1 = pixelL
-        y1 = aT * x1 + bT
-        x2 = (pixelT - bT) / aT
-        y2 = pixelT
-        x3 = lt.x
-        y3 = lt.y
-        const firstArea = calcTriangleArea(x1, y1, x2, y2, x3, y3)
-        x4 = (pixelT - bB) / aB
-        y4 = pixelT
-        x5 = (pixelB - bB) / aB
-        y5 = pixelB
-        return 1 - firstArea - ((rt.x - x4) * (rb.x - x5)) / 2
-      }
+      x1 = (pixelB - bR) / aR
+      y1 = pixelB
+      x2 = (pixelB - bB) / aB
+      y2 = pixelB
+      best1x = x1 < x2 ? x1 : x2
+      best1y = best1x === x1 ? y1 : y2
+      x3 = pixelL
+      y3 = aT * x3 + bT
+      x4 = pixelL
+      y4 = aR * x4 + bR
+      best2y = y3 > y4 ? y3 : y4
+      best2x = best2y === y3 ? x3 : x4
+      x5 = pixLB.x
+      y5 = pixLB.y
+      console.log(`p1: ${best1x},${best1y} | p2: ${best2x},${best2y} | p3: ${x5},${y5}`)
+      return calcTriangleArea(best1x, best1y, best2x, best2y, x5, y5)
     }
 
     // 0 booleans are true
-
-    x1 = (pixelT - bL) / aL // TODO
-    x2 = (pixelT - bR) / aR
     x1 = (pixelT - bL) / aL
     x2 = (pixelT - bL) / aL
     x3 = (pixelT - bT) / aT
@@ -444,10 +432,18 @@ export function calculateAntiAliasing(
 
     return 0
   }
-
+  const shiftedPointA: IPoint = {
+    x: Math.floor(points[0].x),
+    y: Math.floor(points[0].y),
+  }
+  const shiftedPointB: IPoint = {
+    x: Math.floor(points[1].x),
+    y: Math.floor(points[1].y),
+  }
+  const shiftedPoints = [shiftedPointA, shiftedPointB]
   const dist = lineWidth / 2
-  const start = points[0].x < points[1].x ? points[0] : points[1]
-  const end = points[0].x > points[1].x ? points[0] : points[1]
+  const start = shiftedPoints[0].x < shiftedPoints[1].x ? shiftedPoints[0] : shiftedPoints[1]
+  const end = shiftedPoints[0].x > shiftedPoints[1].x ? shiftedPoints[0] : shiftedPoints[1]
   const d: IPoint = { ...defaultPointValue }
   let cosAlpha: number
   let sinAlpha: number
@@ -580,20 +576,31 @@ export function calculateAntiAliasing(
     share: number
   ): number => {
     return Math.round(
-      backgroundColor * (1 - lineOpacity * share) +
-        lineColor * lineOpacity * share
+      backgroundColor * (1 - lineOpacity * share) + lineColor * lineOpacity * share
     )
   }
 
   const newPixels = [...pixels]
 
   for (let i = 0; i < pixels.length; i += 3) {
-    const point = calcPixelPosition(i)
+    const point = calcPixelPosition(i / 3)
     const share = isFirstCase
       ? countPercentageAlongAxis(point)
       : countPercentageBasic(point)
+    if (share > 0 && share < 1) {
+      console.log(`cX: ${point.x}, cY: ${point.y}, share: ${share}`)
+    }
     for (let j = 0; j < 3; j += 1) {
-      newPixels[j] = mixColor(pixels[j], lineColor[j], share)
+      // if (share > 0 && share < 1) {
+      //   if (j === 0) {
+      //     newPixels[i + j] = 255
+      //   } else {
+      //     newPixels[i + j] = 0
+      //   }
+      // } else {
+      //   newPixels[i + j] = mixColor(pixels[i + j], lineColor[j], share)
+      // }
+      newPixels[i + j] = mixColor(pixels[i + j], lineColor[j], share)
     }
   }
 
