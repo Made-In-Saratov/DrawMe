@@ -1,6 +1,7 @@
 import { IPoint } from "@/store/slices/image/types"
 
 const defaultPointValue: IPoint = { x: -1, y: -1 }
+const maxApproximate: number = 0.95
 
 export function calculateAntiAliasing(
   pixels: number[],
@@ -18,6 +19,21 @@ export function calculateAntiAliasing(
     return yTdiff >= 0 && yLdiff <= 0 && yRdiff >= 0 && yBdiff <= 0
   }
 
+  const calcDistance = (
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number
+  ): number => {
+    return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
+  }
+  const calcTrapezoidArea = (
+    base1: number,
+    base2: number,
+    h: number
+  ): number => {
+    return Math.min((Math.abs(base1) + Math.abs(base2)) * h / 2, maxApproximate)
+  }
   const calcTriangleArea = (
     x1: number,
     y1: number,
@@ -91,7 +107,7 @@ export function calculateAntiAliasing(
       x1 = (pixelB - bB) / aB
       y1 = pixelB
       x2 = pixelR
-      y2 = aR * x2 + bR
+      y2 = aB * x2 + bB
       x3 = pixRB.x
       y3 = pixRB.y
       return 1 - calcTriangleArea(x1, y1, x2, y2, x3, y3)
@@ -117,7 +133,7 @@ export function calculateAntiAliasing(
         y1 = aB * pixelL + bB
         y2 = aB * pixelR + bB
       }
-      return ((y1 - pixLT.y) * (y2 - pixRT.y)) / 2
+      return calcTrapezoidArea(y1 - pixLT.y, y2 - pixRT.y, 1)
     }
 
     if (!LTin && RTin && !LBin && RBin) {
@@ -128,7 +144,7 @@ export function calculateAntiAliasing(
         x1 = (pixelT - bT) / aT
         x2 = (pixelB - bT) / aT
       }
-      return ((pixRT.x - x1) * (pixRB.x - x2)) / 2
+      return calcTrapezoidArea(pixRT.x - x1, pixRB.x - x2, 1)
     }
 
     if (!LTin && !RTin && LBin && RBin) {
@@ -139,7 +155,7 @@ export function calculateAntiAliasing(
         y1 = aR * pixelL + bR
         y2 = aR * pixelR + bR
       }
-      return ((pixLB.y - y1) * (pixRB.y - y2)) / 2
+      return calcTrapezoidArea(pixLB.y - y1, pixRB.y - y2, 1)
     }
 
     if (LTin && !RTin && LBin && !RBin) {
@@ -148,9 +164,9 @@ export function calculateAntiAliasing(
         x2 = (pixelB - bR) / aR
       } else {
         x1 = (pixelT - bB) / aB
-        x2 = (pixelT - bB) / aB
+        x2 = (pixelB - bB) / aB
       }
-      return ((x1 - pixLT.x) * (x2 - pixLB.x)) / 2
+      return calcTrapezoidArea(x1 - pixLT.x, x2 - pixLB.x, 1)
     }
 
     let xL: number,
@@ -167,34 +183,26 @@ export function calculateAntiAliasing(
       yL = aL * xL + bL
       xB = (pixelB - bL) / aL
       yB = pixelB
-      const xLB = pixelL
-      const yLB = pixelB
-      const firstArea = calcTriangleArea(xL, yL, xB, yB, xLB, yLB)
+      const firstArea = calcTriangleArea(xL, yL, xB, yB, pixLB.x, pixLB.y)
       xR = pixelR
       yR = aR * xR + bR
       xT = (pixelT - bR) / aR
       yT = pixelT
-      const xRT = pixelR
-      const yRT = pixelT
-      const secondArea = calcTriangleArea(xR, yR, xT, yT, xRT, yRT)
+      const secondArea = calcTriangleArea(xR, yR, xT, yT, pixRT.x, pixRT.y)
       return 1 - firstArea - secondArea
     }
 
     if (!LTin && RTin && LBin && !RBin) {
       xL = pixelL
       yL = aL * xL + bT
-      xB = (pixelB - bT) / aT
+      xB = (pixelT - bT) / aT
       yB = pixelT
-      const xLT = pixelL
-      const yLT = pixelT
-      const firstArea = calcTriangleArea(xL, yL, xB, yB, xLT, yLT)
+      const firstArea = calcTriangleArea(xL, yL, xB, yB, pixLT.x, pixLT.y)
       xR = pixelR
       yR = aB * xR + bB
       xB = (pixelB - bB) / aB
       yB = pixelB
-      const xRB = pixelR
-      const yRB = pixelB
-      const secondArea = calcTriangleArea(xR, yR, xB, yB, xRB, yRB)
+      const secondArea = calcTriangleArea(xR, yR, xB, yB, pixRB.x, pixRB.y)
       return 1 - firstArea - secondArea
     }
 
@@ -203,6 +211,17 @@ export function calculateAntiAliasing(
     let xC: number, xK: number, best1x: number, best2x: number, best1y: number, best2y: number, x4: number, y4: number, x5: number, y5: number
 
     if (LTin && !RTin && !LBin && !RBin) {
+      // if (lt.x < pixelR && rt.y < pixelB) {  // for narrow lines
+      //   x1 = (pixelT - bR) / aR
+      //   y1 = pixelT
+      //   x2 = pixelR
+      //   y2 = aR * x2 + bR
+      //   x3 = pixelR
+      //   y3 = aL * x3 + bL
+      //   x4 = pixelL
+      //   y4 = aL * x4 + bL
+      //   return calcTrapezoidArea(calcDistance(x1, y1, x2, y2), calcDistance(x3, y3, x4, y4), Math.abs(bR - bL))
+      // }
       x1 = (pixelT - bR) / aR
       y1 = pixelT
       x2 = (pixelT - bB) / aB
@@ -222,6 +241,17 @@ export function calculateAntiAliasing(
     }
 
     if (!LTin && RTin && !LBin && !RBin) {
+      // if (lb.x < pixelR && lt.y > pixelT) {  // for narrow lines
+      //   x1 = pixelL
+      //   y1 = aT * x1 + bT
+      //   x2 = (pixelT - bT) / aT
+      //   y2 = pixelT
+      //   x3 = pixelR
+      //   y3 = aB * x3 + bB
+      //   x4 = (pixelB - bB) / aB
+      //   y4 = pixelB
+      //   return calcTrapezoidArea(calcDistance(x1, y1, x2, y2), calcDistance(x3, y3, x4, y4), Math.abs(bB - bT))
+      // }
       x1 = (pixelT - bT) / aT
       y1 = pixelT
       x2 = (pixelT - bL) / aL
@@ -241,6 +271,17 @@ export function calculateAntiAliasing(
     }
 
     if (!LTin && !RTin && !LBin && RBin) {
+      // if (lt.x < pixelR && rt.y < pixelB) {  // for narrow lines
+      //   x1 = (pixelB - bL) / aL
+      //   y1 = pixelB
+      //   x2 = pixelL
+      //   y2 = aL * x2 + bL
+      //   x3 = pixelL
+      //   y3 = aR * x3 + bR
+      //   x4 = pixelR
+      //   y4 = aR * x4 + bR
+      //   return calcTrapezoidArea(calcDistance(x1, y1, x2, y2), calcDistance(x3, y3, x4, y4), Math.abs(bR - bL))
+      // }
       x1 = (pixelB - bT) / aT
       y1 = pixelB
       x2 = (pixelB - bL) / aL
@@ -298,6 +339,17 @@ export function calculateAntiAliasing(
     }
 
     if (!LTin && !RTin && LBin && !RBin) {
+      // if (rt.x > pixelL &&  rb.y < pixelB) {  // for narrow lines
+      //   x1 = pixelL
+      //   y1 = aT * x1 + bT
+      //   x2 = pixelR
+      //   y2 = aT * x2 + bT
+      //   x3 = pixelR
+      //   y3 = aB * x3 + bB
+      //   x4 = (pixelB - bB) / aB
+      //   y4 = pixelB
+      //   return calcTrapezoidArea(calcDistance(x1, y1, x2, y2), calcDistance(x3, y3, x4, y4), Math.abs(bB - bT))
+      // }
       x1 = (pixelB - bR) / aR
       y1 = pixelB
       x2 = (pixelB - bB) / aB
@@ -333,105 +385,6 @@ export function calculateAntiAliasing(
     return 0
   }
 
-  const containsAlongAxis = (point: IPoint): boolean => {
-    return (
-      point.x >= lt.x && point.x <= rt.x && point.y >= lt.y && point.y <= lb.y
-    )
-  }
-
-  const countPercentageAlongAxis = (pixel: IPoint): number => {
-    const pixelT: number = pixel.y - 0.5
-    const pixelB: number = pixel.y + 0.5
-    const pixelL: number = pixel.x - 0.5
-    const pixelR: number = pixel.x + 0.5
-
-    const pixLT: IPoint = {
-      x: pixelL,
-      y: pixelT,
-    }
-    const pixRT: IPoint = {
-      x: pixelR,
-      y: pixelT,
-    }
-    const pixLB: IPoint = {
-      x: pixelL,
-      y: pixelB,
-    }
-    const pixRB: IPoint = {
-      x: pixelR,
-      y: pixelB,
-    }
-
-    const LTin: boolean = containsAlongAxis(pixLT)
-    const RTin: boolean = containsAlongAxis(pixRT)
-    const LBin: boolean = containsAlongAxis(pixLB)
-    const RBin: boolean = containsAlongAxis(pixRB)
-
-    let k: number
-
-    // 4 booleans are true
-
-    if (LTin && RTin && LBin && RBin) {
-      return 1
-    }
-
-    // 2 booleans are true
-
-    if (LTin && RTin && !LBin && !RBin) {
-      if (start.x === end.x) {
-        return 0.5
-      }
-      if (start.y === end.y) {
-        k = dist - 0.5
-        return k - Math.floor(k)
-      }
-    }
-    if (LTin && !RTin && LBin && !RBin) {
-      if (start.x === end.x) {
-        k = dist - 0.5
-        return k - Math.floor(k)
-      }
-      if (start.y === end.y) {
-        return 0.5
-      }
-    }
-    if (!LTin && RTin && !LBin && RBin) {
-      if (start.x === end.x) {
-        k = dist - 0.5
-        return k - Math.floor(k)
-      }
-      if (start.y === end.y) {
-        return 0.5
-      }
-    }
-
-    // 1 boolean is true
-
-    if (Number(LTin) + Number(RTin) + Number(LBin) + Number(RBin) === 1) {
-      k = dist - 0.5
-      return (k - Math.floor(k)) * 0.5
-    }
-
-    // 0 booleans are true
-
-    if (start.x === end.x) {
-      if (pixelL <= lt.x) {
-        return dist * 2
-      } else {
-        return 0
-      }
-    }
-
-    if (start.y === end.y) {
-      if (pixelT <= lt.y) {
-        return dist * 2
-      } else {
-        return 0
-      }
-    }
-
-    return 0
-  }
   const shiftedPointA: IPoint = {
     x: Math.floor(points[0].x),
     y: Math.floor(points[0].y),
@@ -472,9 +425,6 @@ export function calculateAntiAliasing(
   let aL: number, bL: number
   let aR: number, bR: number
 
-  // flag for defining case
-  let isFirstCase: boolean = true
-
   const calcFunctions = (x1: IPoint, x2: IPoint): number[] => {
     const a: number = (x1.y - x2.y) / (x1.x - x2.x)
     const b: number = (x1.x * x2.y - x2.x * x1.y) / (x1.x - x2.x)
@@ -496,34 +446,37 @@ export function calculateAntiAliasing(
     bR = aRbR[1]
   }
 
+  if (start.x === end.x) {
+    end.x += 1
+  }
   // first case
-  if (start.x === start.y) {
-    lt.x = start.x - d.x
-    lt.y = start.y
+  // if (start.x === start.y) {
+  //   lt.x = start.x - d.x
+  //   lt.y = start.y
 
-    rt.x = start.x + d.x
-    rt.y = start.y
+  //   rt.x = start.x + d.x
+  //   rt.y = start.y
 
-    lb.x = end.x - d.x
-    lb.y = end.y
+  //   lb.x = end.x - d.x
+  //   lb.y = end.y
 
-    rb.x = end.x + d.x
-    rb.y = end.y
-  }
+  //   rb.x = end.x + d.x
+  //   rb.y = end.y
+  // }
 
-  if (end.x === end.y) {
-    lt.x = start.x
-    lt.y = start.y - d.y
+  // if (end.x === end.y) {
+  //   lt.x = start.x
+  //   lt.y = start.y - d.y
 
-    rt.x = start.x
-    rt.y = start.y - d.y
+  //   rt.x = start.x
+  //   rt.y = start.y - d.y
 
-    lb.x = end.x
-    lb.y = end.y + d.y
+  //   lb.x = end.x
+  //   lb.y = end.y + d.y
 
-    rb.x = end.x
-    rb.y = end.y + d.y
-  }
+  //   rb.x = end.x
+  //   rb.y = end.y + d.y
+  // }
 
   // second case
   if (start.y < end.y) {
@@ -538,10 +491,6 @@ export function calculateAntiAliasing(
 
     rb.x = end.x + d.x
     rb.y = end.y - d.y
-
-    calcCoeffs()
-
-    isFirstCase = false
   }
 
   // third case
@@ -557,11 +506,9 @@ export function calculateAntiAliasing(
 
     rb.x = end.x + d.x
     rb.y = end.y + d.y
-
-    calcCoeffs()
-
-    isFirstCase = false
   }
+
+  calcCoeffs()
 
   const calcPixelPosition = (pixelId: number) => {
     return {
@@ -584,9 +531,7 @@ export function calculateAntiAliasing(
 
   for (let i = 0; i < pixels.length; i += 3) {
     const point = calcPixelPosition(i / 3)
-    const share = isFirstCase
-      ? countPercentageAlongAxis(point)
-      : countPercentageBasic(point)
+    const share = countPercentageBasic(point)
     if (share > 0 && share < 1) {
       console.log(`cX: ${point.x}, cY: ${point.y}, share: ${share}`)
     }
