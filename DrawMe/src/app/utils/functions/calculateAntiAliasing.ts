@@ -1,7 +1,8 @@
 import { IPoint } from "@/store/slices/image/types"
 
 const defaultPointValue: IPoint = { x: -1, y: -1 }
-const maxApproximate: number = 0.95
+const maxApproximate = 0.95
+const narrowLineTreshold = 2
 
 export function calculateAntiAliasing(
   pixels: number[],
@@ -11,7 +12,7 @@ export function calculateAntiAliasing(
   lineWidth: number,
   lineOpacity: number
 ): number[] {
-  const contains = (point: IPoint): boolean => {
+  const lineContainsPixel = (point: IPoint): boolean => {
     const yTdiff: number = point.y - (aT * point.x + bT)
     const yBdiff: number = point.y - (aB * point.x + bB)
     const yLdiff: number = point.y - (aL * point.x + bL)
@@ -67,11 +68,10 @@ export function calculateAntiAliasing(
       y: pixelB,
     }
 
-    const LTin: boolean = contains(pixLT)
-    const RTin: boolean = contains(pixRT)
-    const LBin: boolean = contains(pixLB)
-    const RBin: boolean = contains(pixRB)
-    if (!(LTin && RTin && LBin && RBin || !LTin && !RTin && !LBin && !RBin)) console.log(`cX: ${pixel.x}, cY: ${pixel.y}, LTin: ${LTin}, RTin: ${RTin}, RBin: ${RBin}, LBin: ${LBin}`)
+    const LTin: boolean = lineContainsPixel(pixLT)
+    const RTin: boolean = lineContainsPixel(pixRT)
+    const LBin: boolean = lineContainsPixel(pixLB)
+    const RBin: boolean = lineContainsPixel(pixRB)
 
     let x1: number, y1: number, x2: number, y2: number, x3: number, y3: number
 
@@ -211,17 +211,6 @@ export function calculateAntiAliasing(
     let xC: number, xK: number, best1x: number, best2x: number, best1y: number, best2y: number, x4: number, y4: number, x5: number, y5: number
 
     if (LTin && !RTin && !LBin && !RBin) {
-      // if (lt.x < pixelR && rt.y < pixelB) {  // for narrow lines
-      //   x1 = (pixelT - bR) / aR
-      //   y1 = pixelT
-      //   x2 = pixelR
-      //   y2 = aR * x2 + bR
-      //   x3 = pixelR
-      //   y3 = aL * x3 + bL
-      //   x4 = pixelL
-      //   y4 = aL * x4 + bL
-      //   return calcTrapezoidArea(calcDistance(x1, y1, x2, y2), calcDistance(x3, y3, x4, y4), Math.abs(bR - bL))
-      // }
       x1 = (pixelT - bR) / aR
       y1 = pixelT
       x2 = (pixelT - bB) / aB
@@ -236,22 +225,10 @@ export function calculateAntiAliasing(
       best2x = best2y === y3 ? x3 : x4
       x5 = pixLT.x
       y5 = pixLT.y
-      console.log(`p1: ${best1x},${best1y} | p2: ${best2x},${best2y} | p3: ${x5},${y5}`)
       return calcTriangleArea(best1x, best1y, best2x, best2y, x5, y5)
     }
 
     if (!LTin && RTin && !LBin && !RBin) {
-      // if (lb.x < pixelR && lt.y > pixelT) {  // for narrow lines
-      //   x1 = pixelL
-      //   y1 = aT * x1 + bT
-      //   x2 = (pixelT - bT) / aT
-      //   y2 = pixelT
-      //   x3 = pixelR
-      //   y3 = aB * x3 + bB
-      //   x4 = (pixelB - bB) / aB
-      //   y4 = pixelB
-      //   return calcTrapezoidArea(calcDistance(x1, y1, x2, y2), calcDistance(x3, y3, x4, y4), Math.abs(bB - bT))
-      // }
       x1 = (pixelT - bT) / aT
       y1 = pixelT
       x2 = (pixelT - bL) / aL
@@ -266,22 +243,10 @@ export function calculateAntiAliasing(
       best2x = best2y === y3 ? x3 : x4
       x5 = pixRT.x
       y5 = pixRT.y
-      console.log(`p1: ${best1x},${best1y} | p2: ${best2x},${best2y} | p3: ${x5},${y5}`)
       return calcTriangleArea(best1x, best1y, best2x, best2y, x5, y5)
     }
 
     if (!LTin && !RTin && !LBin && RBin) {
-      // if (lt.x < pixelR && rt.y < pixelB) {  // for narrow lines
-      //   x1 = (pixelB - bL) / aL
-      //   y1 = pixelB
-      //   x2 = pixelL
-      //   y2 = aL * x2 + bL
-      //   x3 = pixelL
-      //   y3 = aR * x3 + bR
-      //   x4 = pixelR
-      //   y4 = aR * x4 + bR
-      //   return calcTrapezoidArea(calcDistance(x1, y1, x2, y2), calcDistance(x3, y3, x4, y4), Math.abs(bR - bL))
-      // }
       x1 = (pixelB - bT) / aT
       y1 = pixelB
       x2 = (pixelB - bL) / aL
@@ -296,60 +261,10 @@ export function calculateAntiAliasing(
       best2x = best2y === y3 ? x3 : x4
       x5 = pixRB.x
       y5 = pixRB.y
-      console.log(`p1: ${best1x},${best1y} | p2: ${best2x},${best2y} | p3: ${x5},${y5}`)
       return calcTriangleArea(best1x, best1y, best2x, best2y, x5, y5)
-      // xC = (pixelT - bR) / aR
-      // xK = (pixelB - bT) / aT
-      // if (xK >= pixLB.x && xK <= pixRB.x) {
-      //   x1 = (pixelB - bT) / aT
-      //   y1 = pixelB
-      //   x2 = pixRB.x
-      //   y2 = pixRB.y
-      //   x3 = pixelR
-      //   y3 = aT * x3 + bT
-      //   return 1 - calcTriangleArea(x1, y1, x2, y2, x3, y3)
-      // }
-      // if (xC >= pixLT.x) {
-      //   x1 = (pixelT - bR) / aR
-      //   y1 = pixelT
-      //   x2 = pixelR
-      //   y2 = aR * x2 + bR
-      //   x3 = pixRT.x
-      //   y3 = pixRT.y
-      //   const firstArea = calcTriangleArea(x1, y1, x2, y2, x3, y3)
-      //   x4 = (pixelB - bL) / aL
-      //   y4 = pixelB
-      //   x5 = (pixelT - bL) / aL
-      //   y5 = pixelT
-      //   return 1 - firstArea - ((x5 - pixLT.x) * (x4 - pixLB.x)) / 2
-      // } else {
-      //   x1 = (pixelB - bL) / aL
-      //   y1 = pixelB
-      //   x2 = pixelL
-      //   y2 = aL * x2 + bL
-      //   x3 = pixLB.x
-      //   y3 = pixLB.y
-      //   const firstArea = calcTriangleArea(x1, y1, x2, y2, x3, y3)
-      //   x4 = pixelL
-      //   y4 = aR * x4 + bR
-      //   x5 = pixelR
-      //   y5 = aR * x5 + bR
-      //   return 1 - firstArea - ((y5 - pixLT.y) * (y4 - pixRT.y)) / 2
-      // }
     }
 
     if (!LTin && !RTin && LBin && !RBin) {
-      // if (rt.x > pixelL &&  rb.y < pixelB) {  // for narrow lines
-      //   x1 = pixelL
-      //   y1 = aT * x1 + bT
-      //   x2 = pixelR
-      //   y2 = aT * x2 + bT
-      //   x3 = pixelR
-      //   y3 = aB * x3 + bB
-      //   x4 = (pixelB - bB) / aB
-      //   y4 = pixelB
-      //   return calcTrapezoidArea(calcDistance(x1, y1, x2, y2), calcDistance(x3, y3, x4, y4), Math.abs(bB - bT))
-      // }
       x1 = (pixelB - bR) / aR
       y1 = pixelB
       x2 = (pixelB - bB) / aB
@@ -364,39 +279,49 @@ export function calculateAntiAliasing(
       best2x = best2y === y3 ? x3 : x4
       x5 = pixLB.x
       y5 = pixLB.y
-      console.log(`p1: ${best1x},${best1y} | p2: ${best2x},${best2y} | p3: ${x5},${y5}`)
       return calcTriangleArea(best1x, best1y, best2x, best2y, x5, y5)
-    }
-
-    // 0 booleans are true
-    x1 = (pixelT - bL) / aL
-    x2 = (pixelT - bL) / aL
-    x3 = (pixelT - bT) / aT
-    x4 = (pixelT - bB) / aB
-
-    if (pixelL <= x1 && x2 <= pixelR) {
-      return x2 - x1
-    }
-
-    if (pixelL <= x3 && x4 <= pixelR) {
-      return x4 - x3
     }
 
     return 0
   }
 
-  const shiftedPointA: IPoint = {
-    x: Math.floor(points[0].x),
-    y: Math.floor(points[0].y),
+  const countWuPercentageLongX = (pixel: IPoint) => {
+    const lineCenter: IPoint = {
+      x: pixel.x,
+      y: aM * pixel.x + bM,
+    }
+    if (!(lineContainsPixel(lineCenter) && Math.abs(lineCenter.y - pixel.y) <= 0.5)) {
+      return [0, 0, 0]
+    }
+    
+    const belowY = pixel.y + 0.5
+    const aboveY = pixel.y - 0.5
+    const percentageBelow = Math.max(0, lineCenter.y + lineWidth / 2 - belowY)
+    const percentageAbove = Math.max(0, aboveY - (lineCenter.y - lineWidth / 2))
+    const percentageMid = Math.min(lineWidth / 2, belowY - lineCenter.y) + Math.min(lineWidth / 2, lineCenter.y - aboveY)
+    return [percentageAbove, percentageMid, percentageBelow]
   }
-  const shiftedPointB: IPoint = {
-    x: Math.floor(points[1].x),
-    y: Math.floor(points[1].y),
+
+  const countWuPercentageLongY = (pixel: IPoint) => {
+    const lineCenter: IPoint = {
+      x: (pixel.y - bM) / aM,
+      y: pixel.y,
+    }
+    if (!(lineContainsPixel(lineCenter) && Math.abs(lineCenter.x - pixel.x) <= 0.5)) {
+      return [0, 0, 0]
+    }
+    
+    const leftX = pixel.x - 0.5
+    const rightX = pixel.x + 0.5
+    const percentageRight = Math.max(0, lineCenter.x + lineWidth / 2 - rightX)
+    const percentageLeft = Math.max(0, leftX - (lineCenter.x - lineWidth / 2))
+    const percentageMid = Math.min(lineWidth / 2, rightX - lineCenter.x) + Math.min(lineWidth / 2, lineCenter.x - leftX)
+    return [percentageLeft, percentageMid, percentageRight]
   }
-  const shiftedPoints = [shiftedPointA, shiftedPointB]
+
   const dist = lineWidth / 2
-  const start = shiftedPoints[0].x < shiftedPoints[1].x ? shiftedPoints[0] : shiftedPoints[1]
-  const end = shiftedPoints[0].x > shiftedPoints[1].x ? shiftedPoints[0] : shiftedPoints[1]
+  const start = points[0].x < points[1].x ? points[0] : points[1]
+  const end = points[0].x > points[1].x ? points[0] : points[1]
   const d: IPoint = { ...defaultPointValue }
   let cosAlpha: number
   let sinAlpha: number
@@ -424,6 +349,7 @@ export function calculateAntiAliasing(
   let aB: number, bB: number
   let aL: number, bL: number
   let aR: number, bR: number
+  let aM: number, bM: number
 
   const calcFunctions = (x1: IPoint, x2: IPoint): number[] => {
     const a: number = (x1.y - x2.y) / (x1.x - x2.x)
@@ -444,41 +370,15 @@ export function calculateAntiAliasing(
     const aRbR: number[] = calcFunctions(rt, rb)
     aR = aRbR[0]
     bR = aRbR[1]
+    const aMbM: number[] = calcFunctions(start, end)
+    aM = aMbM[0]
+    bM = aMbM[1]
   }
 
   if (start.x === end.x) {
     end.x += 1
   }
-  // first case
-  // if (start.x === start.y) {
-  //   lt.x = start.x - d.x
-  //   lt.y = start.y
-
-  //   rt.x = start.x + d.x
-  //   rt.y = start.y
-
-  //   lb.x = end.x - d.x
-  //   lb.y = end.y
-
-  //   rb.x = end.x + d.x
-  //   rb.y = end.y
-  // }
-
-  // if (end.x === end.y) {
-  //   lt.x = start.x
-  //   lt.y = start.y - d.y
-
-  //   rt.x = start.x
-  //   rt.y = start.y - d.y
-
-  //   lb.x = end.x
-  //   lb.y = end.y + d.y
-
-  //   rb.x = end.x
-  //   rb.y = end.y + d.y
-  // }
-
-  // second case
+  
   if (start.y < end.y) {
     lt.x = start.x - d.x
     lt.y = start.y + d.y
@@ -493,7 +393,6 @@ export function calculateAntiAliasing(
     rb.y = end.y - d.y
   }
 
-  // third case
   if (start.y > end.y) {
     lt.x = start.x - d.x
     lt.y = start.y - d.y
@@ -529,23 +428,47 @@ export function calculateAntiAliasing(
 
   const newPixels = [...pixels]
 
-  for (let i = 0; i < pixels.length; i += 3) {
-    const point = calcPixelPosition(i / 3)
-    const share = countPercentageBasic(point)
-    if (share > 0 && share < 1) {
-      console.log(`cX: ${point.x}, cY: ${point.y}, share: ${share}`)
+  if (lineWidth > narrowLineTreshold) {
+    for (let i = 0; i < pixels.length; i += 3) {
+      const point = calcPixelPosition(i / 3)
+      const share = countPercentageBasic(point)
+      for (let j = 0; j < 3; j += 1) {
+        newPixels[i + j] = mixColor(pixels[i + j], lineColor[j], share)
+      }
     }
-    for (let j = 0; j < 3; j += 1) {
-      // if (share > 0 && share < 1) {
-      //   if (j === 0) {
-      //     newPixels[i + j] = 255
-      //   } else {
-      //     newPixels[i + j] = 0
-      //   }
-      // } else {
-      //   newPixels[i + j] = mixColor(pixels[i + j], lineColor[j], share)
-      // }
-      newPixels[i + j] = mixColor(pixels[i + j], lineColor[j], share)
+  } else {
+    if (Math.abs(end.x - start.x) > Math.abs(end.y - start.y)) {
+      for (let i = 0; i < pixels.length; i += 3) {
+        const point = calcPixelPosition(i / 3)
+        const share = countWuPercentageLongX(point)
+        if (share[1] !== 0) {
+          for (let j = 0; j < 3; j += 1) {
+            if (i - canvasLength * 3 + j >= 0) {
+              newPixels[i - canvasLength * 3 + j] = mixColor(pixels[i - canvasLength * 3 + j], lineColor[j], share[0])
+            }
+            newPixels[i + j] = mixColor(pixels[i + j], lineColor[j], share[1])
+            if (i + canvasLength * 3 + j < pixels.length) {
+              newPixels[i + canvasLength * 3 + j] = mixColor(pixels[i + canvasLength * 3 + j], lineColor[j], share[2])
+            }
+          }
+        }
+      }
+    } else {
+      for (let i = 0; i < pixels.length; i += 3) {
+        const point = calcPixelPosition(i / 3)
+        const share = countWuPercentageLongY(point)
+        if (share[1] !== 0) {
+          for (let j = 0; j < 3; j += 1) {
+            if (i - 3 + j >= 0) {
+              newPixels[i - 3 + j] = mixColor(pixels[i - 3 + j], lineColor[j], share[0])
+            }
+            newPixels[i + j] = mixColor(pixels[i + j], lineColor[j], share[1])
+            if (i + 3 + j < pixels.length) {
+              newPixels[i + 3 + j] = mixColor(pixels[i + 3 + j], lineColor[j], share[2])
+            }
+          }
+        }
+      }
     }
   }
 
