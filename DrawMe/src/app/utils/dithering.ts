@@ -1,6 +1,7 @@
 import { DitheringAlgorithmT } from "@/pages/home/Dithering/types"
 import { atkinson } from "@/utils/functions/dithering/atkinson"
 import { floydSteinberg } from "@/utils/functions/dithering/floydSteinberg"
+import { none } from "@/utils/functions/dithering/none"
 import { ordered } from "@/utils/functions/dithering/ordered"
 import { random } from "@/utils/functions/dithering/random"
 
@@ -22,7 +23,7 @@ export const dithering: Record<
 > = {
   None: {
     name: "None",
-    apply: (pixels: number[]) => pixels,
+    apply: none,
   },
   Ordered: {
     name: "Ordered (8x8)",

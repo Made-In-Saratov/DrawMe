@@ -75,7 +75,7 @@ export function atkinson(
       }
     }
   }
-  console.log(errorsR)
+
   return newPixels
 }
 

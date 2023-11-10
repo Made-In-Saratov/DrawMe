@@ -12,6 +12,7 @@ import Input from "@/components/Input"
 import { DitheringAlgorithmT } from "@/pages/home/Dithering/types"
 import { useAppDispatch } from "@/store"
 import { setPixels } from "@/store/slices/image"
+import { dithering } from "@/utils/dithering"
 import { text16 } from "@/utils/fonts"
 import { generateGradient } from "@/utils/functions"
 
@@ -39,18 +40,22 @@ export default function GradientSelector({
     []
   )
 
-  const generate = useCallback<MouseEventHandler<HTMLButtonElement>>(
-    () =>
-      dispatch(
-        setPixels({
-          pixels: generateGradient(Number(width), Number(height)),
-          width: Number(width),
-          height: Number(height),
-          isP6: false,
-        })
-      ),
-    [dispatch, height, width]
-  )
+  const generate = useCallback<MouseEventHandler<HTMLButtonElement>>(() => {
+    const gradient = generateGradient(Number(width), Number(height))
+    dispatch(
+      setPixels({
+        pixels: dithering[ditheringAlgorithm].apply(
+          gradient,
+          Number(width),
+          Number(height),
+          bitDepth
+        ),
+        width: Number(width),
+        height: Number(height),
+        isP6: false,
+      })
+    )
+  }, [bitDepth, dispatch, ditheringAlgorithm, height, width])
 
   const isDisabled = Number(width) < 2 || Number(height) < 1
 
