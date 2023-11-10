@@ -11,7 +11,7 @@ export function calculateAntiAliasing(
   lineColor: number[],
   lineWidth: number,
   lineOpacity: number
-): number[] {
+) {
   const lineContainsPixel = (point: IPoint): boolean => {
     const yTdiff: number = point.y - (aT * point.x + bT)
     const yBdiff: number = point.y - (aB * point.x + bB)
@@ -20,14 +20,6 @@ export function calculateAntiAliasing(
     return yTdiff >= 0 && yLdiff <= 0 && yRdiff >= 0 && yBdiff <= 0
   }
 
-  const calcDistance = (
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number
-  ): number => {
-    return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1))
-  }
   const calcTrapezoidArea = (
     base1: number,
     base2: number,
@@ -79,10 +71,7 @@ export function calculateAntiAliasing(
     let x1: number, y1: number, x2: number, y2: number, x3: number, y3: number
 
     // 4 booleans are true
-
-    if (LTin && RTin && LBin && RBin) {
-      return 1
-    }
+    if (LTin && RTin && LBin && RBin) return 1
 
     // 3 booleans are true
 
@@ -127,7 +116,6 @@ export function calculateAntiAliasing(
     }
 
     // 2 booleans are true
-
     if (LTin && RTin && !LBin && !RBin) {
       if (pixRB.x <= lb.x) {
         y1 = aL * pixelL + bL
@@ -210,10 +198,7 @@ export function calculateAntiAliasing(
     }
 
     // 1 boolean is true
-
-    let xC: number,
-      xK: number,
-      best1x: number,
+    let best1x: number,
       best2x: number,
       best1y: number,
       best2y: number,
@@ -306,9 +291,8 @@ export function calculateAntiAliasing(
       !(
         lineContainsPixel(lineCenter) && Math.abs(lineCenter.y - pixel.y) <= 0.5
       )
-    ) {
+    )
       return [0, 0, 0]
-    }
 
     const belowY = pixel.y + 0.5
     const aboveY = pixel.y - 0.5
@@ -329,9 +313,8 @@ export function calculateAntiAliasing(
       !(
         lineContainsPixel(lineCenter) && Math.abs(lineCenter.x - pixel.x) <= 0.5
       )
-    ) {
+    )
       return [0, 0, 0]
-    }
 
     const leftX = pixel.x - 0.5
     const rightX = pixel.x + 0.5

@@ -2,7 +2,6 @@ import React, {
   ChangeEventHandler,
   useCallback,
   useEffect,
-  useRef,
   useState,
 } from "react"
 
@@ -15,7 +14,7 @@ import EditWrapper from "@/components/EditWrapper"
 import Input from "@/components/Input"
 import { useAppDispatch, useAppSelector } from "@/store"
 import { setImage, setSpace } from "@/store/slices/image"
-import { IImage, IPoint } from "@/store/slices/image/types"
+import { IPoint } from "@/store/slices/image/types"
 import { text16, text16Medium } from "@/utils/fonts"
 import { calculateAntiAliasing } from "@/utils/functions/calculateAntiAliasing"
 import { parseInputValue } from "@/utils/functions/validateNumber"
@@ -35,8 +34,6 @@ export default function Lines() {
   const [opacity, setOpacity] = useState<number>(1)
   const [points, setPoints] = useState<IPoint[]>([])
   const [isSelectedFirstPoint, setSelectedFirstPoint] = useState<boolean>(false)
-
-  const canvas = useRef<HTMLCanvasElement>(null)
 
   const handleColorInput = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -83,6 +80,7 @@ export default function Lines() {
           width,
           opacity
         )
+        // eslint-disable-next-line no-param-reassign
         draft.pixels = newPixels
       })
       if (!newImage) return
