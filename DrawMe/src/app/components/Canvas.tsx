@@ -3,7 +3,6 @@ import React, { useEffect, useRef } from "react"
 import styled from "styled-components"
 
 import { useAppSelector } from "@/store"
-import { IImage } from "@/store/slices/image/types"
 import { text20 } from "@/utils/fonts"
 import {
   inverseGammaCorrection,
@@ -12,7 +11,14 @@ import {
 } from "@/utils/functions"
 import { spaces } from "@/utils/spaces"
 
-function Canvas() {
+interface ICanvasProps {
+  onClickHandler?: (
+    event: React.MouseEvent<HTMLCanvasElement>,
+    canvas: React.RefObject<HTMLCanvasElement>
+  ) => void
+}
+
+function Canvas({ onClickHandler = () => {} }: ICanvasProps) {
   const {
     space,
     channels,
@@ -94,7 +100,7 @@ function Canvas() {
 
   return (
     <Wrapper>
-      <StyledCanvas ref={canvas} />
+      <StyledCanvas ref={canvas} onClick={e => onClickHandler(e, canvas)} />
     </Wrapper>
   )
 }

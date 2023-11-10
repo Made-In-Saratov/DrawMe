@@ -13,6 +13,7 @@ import Input from "@/components/Input"
 import Tooltip from "@/components/Tooltip"
 import { useAppSelector } from "@/store"
 import { text16 } from "@/utils/fonts"
+import { parseInputValue } from "@/utils/functions/validateNumber"
 
 interface IGammaEditorProps {
   title: string
@@ -37,7 +38,7 @@ export default function GammaEditor({
   }, [autoupdate, gamma])
 
   const handleInput = useCallback<ChangeEventHandler<HTMLInputElement>>(
-    ({ target }) => setValue(target.value),
+    ({ target }) => setValue(String(parseInputValue(target.value))),
     []
   )
 

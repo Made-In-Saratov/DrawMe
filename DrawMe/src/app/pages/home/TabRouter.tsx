@@ -9,10 +9,12 @@ import { ITabDescription, TabT } from "./types"
 import Canvas from "@/components/Canvas"
 import Navbar from "@/components/Navbar"
 import Gamma from "@/pages/home/Gamma"
+import Lines from "@/pages/home/Lines"
 import Spaces from "@/pages/home/Spaces"
 import ColorIcon from "~/assets/ColorIcon"
 import GammaIcon from "~/assets/GammaIcon"
 import ImageIcon from "~/assets/ImageIcon"
+import LineIcon from "~/assets/LineIcon"
 
 const tabs: ITabDescription[] = [
   {
@@ -30,6 +32,11 @@ const tabs: ITabDescription[] = [
     tab: "gamma",
     Icon: GammaIcon,
   },
+  {
+    title: "Линии",
+    tab: "lines",
+    Icon: LineIcon,
+  },
 ]
 
 export default function TabRouter() {
@@ -43,6 +50,8 @@ export default function TabRouter() {
         return Spaces
       case "gamma":
         return Gamma
+      case "lines":
+        return Lines
       default:
         return Home
     }
@@ -51,7 +60,7 @@ export default function TabRouter() {
   return (
     <Wrapper>
       {tab !== "home" && <Navbar tabs={tabs} current={tab} setTab={setTab} />}
-      {tab !== "home" && <Canvas />}
+      {tab !== "home" && tab !== "lines" && <Canvas />}
       <Tab setTab={setTab} />
     </Wrapper>
   )
