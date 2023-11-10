@@ -57,7 +57,7 @@ export default function TabRouter() {
         return Spaces
       case "gamma":
         return Gamma
-       case "lines":
+      case "lines":
         return Lines
       case "dithering":
         return Dithering

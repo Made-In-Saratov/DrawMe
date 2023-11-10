@@ -24,12 +24,8 @@ export default function Slider({
   }, [])
 
   const handleChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
-    ({ target: { value } }) => {
-      const percent = ((Number(value) - min) / (max - min)) * 100
-      slider.current!.style.background = `linear-gradient(to right, var(--magenta) 0%, var(--light-blue) ${percent}%, var(--white) ${percent}%, var(--white) 100%)`
-      onChange(Number(value))
-    },
-    [max, min, onChange]
+    ({ target: { value } }) => onChange(Number(value)),
+    [onChange]
   )
 
   return (

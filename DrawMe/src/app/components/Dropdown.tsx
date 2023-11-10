@@ -1,4 +1,5 @@
 import {
+  HTMLAttributes,
   MouseEventHandler,
   useCallback,
   useEffect,
@@ -12,7 +13,7 @@ import styled from "styled-components"
 import { text16Medium } from "@/utils/fonts"
 import DropdownIcon from "~/assets/DropdownIcon"
 
-interface IDropdownProps {
+interface IDropdownProps extends HTMLAttributes<HTMLDivElement> {
   items: string[]
   activeItem: string
   setActiveItem: (item: string) => void
@@ -23,7 +24,7 @@ export default function Dropdown({
   items,
   activeItem,
   setActiveItem,
-  className = "",
+  ...props
 }: IDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -53,7 +54,7 @@ export default function Dropdown({
   )
 
   return (
-    <Wrapper className={className}>
+    <Wrapper {...props}>
       <TitleWrapper onClick={toggleOpen}>
         <DropdownIcon />
         <span>{activeItem}</span>
