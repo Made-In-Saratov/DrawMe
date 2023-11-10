@@ -12,7 +12,7 @@ export function calculateAntiAliasing(
   lineWidth: number,
   lineOpacity: number
 ) {
-  const lineContainsPixel = (point: IPoint): boolean => {
+  const lineContainsPixel = (point: IPoint) => {
     const yTdiff: number = point.y - (aT * point.x + bT)
     const yBdiff: number = point.y - (aB * point.x + bB)
     const yLdiff: number = point.y - (aL * point.x + bL)
@@ -20,16 +20,9 @@ export function calculateAntiAliasing(
     return yTdiff >= 0 && yLdiff <= 0 && yRdiff >= 0 && yBdiff <= 0
   }
 
-  const calcTrapezoidArea = (
-    base1: number,
-    base2: number,
-    h: number
-  ): number => {
-    return Math.min(
-      ((Math.abs(base1) + Math.abs(base2)) * h) / 2,
-      maxApproximate
-    )
-  }
+  const calcTrapezoidArea = (base1: number, base2: number, h: number) =>
+    Math.min(((Math.abs(base1) + Math.abs(base2)) * h) / 2, maxApproximate)
+
   const calcTriangleArea = (
     x1: number,
     y1: number,
@@ -37,14 +30,13 @@ export function calculateAntiAliasing(
     y2: number,
     x3: number,
     y3: number
-  ): number => {
-    return Math.abs((x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1)) / 2
-  }
-  const countPercentageBasic = (pixel: IPoint): number => {
-    const pixelT: number = pixel.y - 0.5
-    const pixelB: number = pixel.y + 0.5
-    const pixelL: number = pixel.x - 0.5
-    const pixelR: number = pixel.x + 0.5
+  ) => Math.abs((x2 - x1) * (y3 - y1) - (x3 - x1) * (y2 - y1)) / 2
+
+  const countPercentageBasic = (pixel: IPoint) => {
+    const pixelT = pixel.y - 0.5
+    const pixelB = pixel.y + 0.5
+    const pixelL = pixel.x - 0.5
+    const pixelR = pixel.x + 0.5
 
     const pixLT: IPoint = {
       x: pixelL,
@@ -63,10 +55,10 @@ export function calculateAntiAliasing(
       y: pixelB,
     }
 
-    const LTin: boolean = lineContainsPixel(pixLT)
-    const RTin: boolean = lineContainsPixel(pixRT)
-    const LBin: boolean = lineContainsPixel(pixLB)
-    const RBin: boolean = lineContainsPixel(pixRB)
+    const LTin = lineContainsPixel(pixLT)
+    const RTin = lineContainsPixel(pixRT)
+    const LBin = lineContainsPixel(pixLB)
+    const RBin = lineContainsPixel(pixRB)
 
     let x1: number, y1: number, x2: number, y2: number, x3: number, y3: number
 
@@ -74,7 +66,6 @@ export function calculateAntiAliasing(
     if (LTin && RTin && LBin && RBin) return 1
 
     // 3 booleans are true
-
     if (!LTin && RTin && LBin && RBin) {
       x1 = (pixelT - bT) / aT
       y1 = pixelT
@@ -358,33 +349,31 @@ export function calculateAntiAliasing(
   let aR: number, bR: number
   let aM: number, bM: number
 
-  const calcFunctions = (x1: IPoint, x2: IPoint): number[] => {
+  const calcFunctions = (x1: IPoint, x2: IPoint) => {
     const a: number = (x1.y - x2.y) / (x1.x - x2.x)
     const b: number = (x1.x * x2.y - x2.x * x1.y) / (x1.x - x2.x)
     return [a, b]
   }
 
   const calcCoeffs = () => {
-    const aTbT: number[] = calcFunctions(rt, lt)
+    const aTbT = calcFunctions(rt, lt)
     aT = aTbT[0]
     bT = aTbT[1]
-    const aBbB: number[] = calcFunctions(rb, lb)
+    const aBbB = calcFunctions(rb, lb)
     aB = aBbB[0]
     bB = aBbB[1]
-    const aLbL: number[] = calcFunctions(lt, lb)
+    const aLbL = calcFunctions(lt, lb)
     aL = aLbL[0]
     bL = aLbL[1]
-    const aRbR: number[] = calcFunctions(rt, rb)
+    const aRbR = calcFunctions(rt, rb)
     aR = aRbR[0]
     bR = aRbR[1]
-    const aMbM: number[] = calcFunctions(start, end)
+    const aMbM = calcFunctions(start, end)
     aM = aMbM[0]
     bM = aMbM[1]
   }
 
-  if (start.x === end.x) {
-    end.x += 1
-  }
+  if (start.x === end.x) end.x += 1
 
   if (start.y < end.y) {
     lt.x = start.x - d.x
@@ -427,12 +416,11 @@ export function calculateAntiAliasing(
     backgroundColor: number,
     lineColor: number,
     share: number
-  ): number => {
-    return Math.round(
+  ) =>
+    Math.round(
       backgroundColor * (1 - lineOpacity * share) +
         lineColor * lineOpacity * share
     )
-  }
 
   const newPixels = [...pixels]
 
@@ -440,9 +428,8 @@ export function calculateAntiAliasing(
     for (let i = 0; i < pixels.length; i += 3) {
       const point = calcPixelPosition(i / 3)
       const share = countPercentageBasic(point)
-      for (let j = 0; j < 3; j += 1) {
+      for (let j = 0; j < 3; j += 1)
         newPixels[i + j] = mixColor(pixels[i + j], lineColor[j], share)
-      }
     }
   } else {
     if (Math.abs(end.x - start.x) > Math.abs(end.y - start.y)) {
@@ -451,21 +438,19 @@ export function calculateAntiAliasing(
         const share = countWuPercentageLongX(point)
         if (share[1] !== 0) {
           for (let j = 0; j < 3; j += 1) {
-            if (i - canvasLength * 3 + j >= 0) {
+            if (i - canvasLength * 3 + j >= 0)
               newPixels[i - canvasLength * 3 + j] = mixColor(
                 pixels[i - canvasLength * 3 + j],
                 lineColor[j],
                 share[0]
               )
-            }
             newPixels[i + j] = mixColor(pixels[i + j], lineColor[j], share[1])
-            if (i + canvasLength * 3 + j < pixels.length) {
+            if (i + canvasLength * 3 + j < pixels.length)
               newPixels[i + canvasLength * 3 + j] = mixColor(
                 pixels[i + canvasLength * 3 + j],
                 lineColor[j],
                 share[2]
               )
-            }
           }
         }
       }
@@ -475,21 +460,19 @@ export function calculateAntiAliasing(
         const share = countWuPercentageLongY(point)
         if (share[1] !== 0) {
           for (let j = 0; j < 3; j += 1) {
-            if (i - 3 + j >= 0) {
+            if (i - 3 + j >= 0)
               newPixels[i - 3 + j] = mixColor(
                 pixels[i - 3 + j],
                 lineColor[j],
                 share[0]
               )
-            }
             newPixels[i + j] = mixColor(pixels[i + j], lineColor[j], share[1])
-            if (i + 3 + j < pixels.length) {
+            if (i + 3 + j < pixels.length)
               newPixels[i + 3 + j] = mixColor(
                 pixels[i + 3 + j],
                 lineColor[j],
                 share[2]
               )
-            }
           }
         }
       }

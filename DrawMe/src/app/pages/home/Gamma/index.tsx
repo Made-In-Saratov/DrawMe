@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react"
+import { useCallback } from "react"
 
 import { Helmet } from "react-helmet-async"
 import styled from "styled-components"
