@@ -16,12 +16,14 @@ interface IDropdownProps {
   items: string[]
   activeItem: string
   setActiveItem: (item: string) => void
+  className?: string
 }
 
 export default function Dropdown({
   items,
   activeItem,
   setActiveItem,
+  className = "",
 }: IDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
 
@@ -51,7 +53,7 @@ export default function Dropdown({
   )
 
   return (
-    <Wrapper>
+    <Wrapper className={className}>
       <TitleWrapper onClick={toggleOpen}>
         <DropdownIcon />
         <span>{activeItem}</span>
@@ -80,6 +82,7 @@ export default function Dropdown({
 
 const Wrapper = styled.div`
   position: relative;
+  width: 140px;
 `
 
 const TitleWrapper = styled.div`
@@ -93,7 +96,7 @@ const TitleWrapper = styled.div`
     #ffffff;
 
   display: flex;
-  width: 140px;
+  width: 100%;
   height: 40px;
   padding: 0px 12px;
   align-items: center;
@@ -114,7 +117,7 @@ const ListWrapper = styled.div`
 
   display: flex;
   box-sizing: border-box;
-  width: 140px;
+  width: 100%;
   padding: 16px 8px 16px 0;
   flex-direction: column;
   justify-content: center;

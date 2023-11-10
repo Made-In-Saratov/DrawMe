@@ -34,7 +34,13 @@ export default function Spaces() {
   )
 
   const handleItemChange = useCallback(
-    (item: string) => dispatch(setSpace(item as SpacesT)),
+    (item: string) => {
+      for (const [key, value] of Object.entries(spaces))
+        if (value.name === item) {
+          dispatch(setSpace(key as SpacesT))
+          break
+        }
+    },
     [dispatch]
   )
 
@@ -49,8 +55,8 @@ export default function Spaces() {
       <StyledEditWrapper>
         <Column>
           <Dropdown
-            items={Object.keys(spaces)}
-            activeItem={space}
+            items={Object.values(spaces).map(({ name }) => name)}
+            activeItem={spaces[space].name}
             setActiveItem={handleItemChange}
           />
           <DownloadButton onClick={handleClick}>

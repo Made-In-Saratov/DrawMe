@@ -3,7 +3,6 @@ import React, { useEffect, useRef } from "react"
 import styled from "styled-components"
 
 import { useAppSelector } from "@/store"
-import { IImage } from "@/store/slices/image/types"
 import { text20 } from "@/utils/fonts"
 import {
   inverseGammaCorrection,
@@ -26,11 +25,6 @@ function Canvas() {
     if (!canvas.current || !image) return
 
     const spaceDetails = spaces[space]
-
-    // const processedImage =
-    //   gamma !== 0
-    //     ? gammaCorrection(inverseGammaCorrection(image, 0), gamma)
-    //     : image
 
     const { pixels, width, height, maxColorValue } = image
     canvas.current.width = width

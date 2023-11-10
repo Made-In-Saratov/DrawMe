@@ -8,10 +8,12 @@ import { ITabDescription, TabT } from "./types"
 
 import Canvas from "@/components/Canvas"
 import Navbar from "@/components/Navbar"
+import Dithering from "@/pages/home/Dithering"
 import Gamma from "@/pages/home/Gamma"
 import Spaces from "@/pages/home/Spaces"
 import ColorIcon from "~/assets/ColorIcon"
 import GammaIcon from "~/assets/GammaIcon"
+import GradientIcon from "~/assets/GradientIcon"
 import ImageIcon from "~/assets/ImageIcon"
 
 const tabs: ITabDescription[] = [
@@ -30,10 +32,15 @@ const tabs: ITabDescription[] = [
     tab: "gamma",
     Icon: GammaIcon,
   },
+  {
+    title: "Дизеринг",
+    tab: "dithering",
+    Icon: GradientIcon,
+  },
 ]
 
 export default function TabRouter() {
-  const [tab, setTab] = useState<TabT>("home")
+  const [tab, setTab] = useState<TabT>("dithering")
 
   const Tab = useMemo(() => {
     switch (tab) {
@@ -43,6 +50,8 @@ export default function TabRouter() {
         return Spaces
       case "gamma":
         return Gamma
+      case "dithering":
+        return Dithering
       default:
         return Home
     }
