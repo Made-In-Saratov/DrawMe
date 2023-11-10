@@ -40,7 +40,7 @@ const tabs: ITabDescription[] = [
 ]
 
 export default function TabRouter() {
-  const [tab, setTab] = useState<TabT>("dithering")
+  const [tab, setTab] = useState<TabT>("home")
 
   const Tab = useMemo(() => {
     switch (tab) {
