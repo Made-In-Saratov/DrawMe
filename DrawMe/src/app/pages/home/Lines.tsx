@@ -134,7 +134,7 @@ export default function Lines() {
               value={width}
               onChange={handleWidthInput}
               placeholder="0"
-              type="text"
+              type="number"
             />
             <span>px</span>
           </Selector>

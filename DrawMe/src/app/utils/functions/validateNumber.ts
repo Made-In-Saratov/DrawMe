@@ -1,4 +1,4 @@
-export const parseInputValue = (value: string): number => {
+export const parseInputValue = (value: string) => {
   if (/^\d*\.?\d+$/.test(value)) {
     return +value
   }
