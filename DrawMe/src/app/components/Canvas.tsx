@@ -33,11 +33,6 @@ function Canvas({ onClickHandler = () => {} }: ICanvasProps) {
 
     const spaceDetails = spaces[space]
 
-    // const processedImage =
-    //   gamma !== 0
-    //     ? gammaCorrection(inverseGammaCorrection(image, 0), gamma)
-    //     : image
-
     const { pixels, width, height, maxColorValue } = image
     canvas.current.width = width
     canvas.current.height = height

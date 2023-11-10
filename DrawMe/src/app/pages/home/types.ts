@@ -1,4 +1,4 @@
-export type TabT = "home" | "image" | "spaces" | "gamma" | "lines"
+export type TabT = "home" | "image" | "spaces" | "gamma" | "lines", "dithering"
 
 export interface ITabDescription {
   title: string

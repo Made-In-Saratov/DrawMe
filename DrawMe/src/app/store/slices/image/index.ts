@@ -24,6 +24,33 @@ const imageSlice = createSlice({
       state.convertedGamma = 0
     },
 
+    setPixels: (
+      state,
+      {
+        payload,
+      }: PayloadAction<{
+        pixels: number[]
+        width: number
+        height: number
+        isP6?: boolean
+      }>
+    ) => {
+      if (state.src) {
+        state.src.pixels = payload.pixels
+        state.src.width = payload.width
+        state.src.height = payload.height
+        state.src.isP6 = payload.isP6 ?? state.src.isP6
+      } else {
+        state.src = {
+          pixels: payload.pixels,
+          width: payload.width,
+          height: payload.height,
+          maxColorValue: 255,
+          isP6: payload.isP6 ?? true,
+        }
+      }
+    },
+
     setSpace: (state, { payload }: PayloadAction<SpacesT>) => {
       if (state.src) {
         const currentSpaceDetails = spaces[state.space]
@@ -68,6 +95,7 @@ const imageSlice = createSlice({
   },
 })
 
-export const { setImage, setSpace, setChannels, setGamma } = imageSlice.actions
+export const { setImage, setPixels, setSpace, setChannels, setGamma } =
+  imageSlice.actions
 
 export default imageSlice.reducer
