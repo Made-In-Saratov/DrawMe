@@ -11,7 +11,14 @@ import {
 } from "@/utils/functions"
 import { spaces } from "@/utils/spaces"
 
-function Canvas() {
+interface ICanvasProps {
+  onClickHandler?: (
+    event: React.MouseEvent<HTMLCanvasElement>,
+    canvas: React.RefObject<HTMLCanvasElement>
+  ) => void
+}
+
+function Canvas({ onClickHandler = () => {} }: ICanvasProps) {
   const {
     space,
     channels,
@@ -88,7 +95,7 @@ function Canvas() {
 
   return (
     <Wrapper>
-      <StyledCanvas ref={canvas} />
+      <StyledCanvas ref={canvas} onClick={e => onClickHandler(e, canvas)} />
     </Wrapper>
   )
 }

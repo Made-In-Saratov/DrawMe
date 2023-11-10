@@ -88,6 +88,7 @@ const Button = styled.button`
   padding: 4px;
   align-items: center;
   width: 100%;
+  height: 32px;
 
   transition: color var(--transition-duration) var(--transition-function);
 

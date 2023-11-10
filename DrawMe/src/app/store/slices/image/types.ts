@@ -1,11 +1,3 @@
-export interface IImage {
-  pixels: number[]
-  width: number
-  height: number
-  maxColorValue: number
-  isP6: boolean
-}
-
 export type SpacesT =
   | "RGB"
   | "HSL"
@@ -14,6 +6,19 @@ export type SpacesT =
   | "YCbCr.709"
   | "YCoCg"
   | "CMY"
+
+export type IPoint = {
+  x: number
+  y: number
+}
+
+export interface IImage {
+  pixels: number[]
+  width: number
+  height: number
+  maxColorValue: number
+  isP6: boolean
+}
 
 export interface IImageSlice {
   src: IImage | null

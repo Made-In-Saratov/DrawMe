@@ -1,8 +1,3 @@
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
 # testing
 /coverage
 
@@ -14,3 +9,8 @@
 *.pem
 /.vscode
 /.idea
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
