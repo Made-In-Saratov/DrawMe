@@ -16,6 +16,7 @@ import { useAppDispatch, useAppSelector } from "@/store"
 import { setImage, setSpace } from "@/store/slices/image"
 import { IPoint } from "@/store/slices/image/types"
 import { text16, text16Medium } from "@/utils/fonts"
+import { gammaCorrection, inverseGammaCorrection } from "@/utils/functions"
 import { calculateAntiAliasing } from "@/utils/functions/calculateAntiAliasing"
 import { parseInputValue } from "@/utils/functions/validateNumber"
 import { spaces } from "@/utils/spaces"
@@ -72,8 +73,9 @@ export default function Lines() {
       setSelectedFirstPoint(false)
       const newImage = produce(image, draft => {
         if (!draft || !image || !canvas.current) return
+        const correctedImage = gammaCorrection(image, 0)
         const newPixels = calculateAntiAliasing(
-          image.pixels,
+          correctedImage.pixels,
           canvas.current.width,
           [points[0], newPoint],
           channelValues,
@@ -84,7 +86,8 @@ export default function Lines() {
         draft.pixels = newPixels
       })
       if (!newImage) return
-      dispatch(setImage(newImage))
+      const correctedNewImage = inverseGammaCorrection(newImage, 0)
+      dispatch(setImage(correctedNewImage))
     } else {
       setPoints([newPoint, points[1]])
       setSelectedFirstPoint(true)
