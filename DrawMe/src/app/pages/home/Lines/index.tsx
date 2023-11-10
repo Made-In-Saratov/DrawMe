@@ -1,4 +1,10 @@
-import React, { ChangeEventHandler, useCallback, useRef, useState } from "react"
+import React, {
+  ChangeEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react"
 
 import { produce } from "immer"
 import { Helmet } from "react-helmet-async"
@@ -8,10 +14,11 @@ import Canvas from "@/components/Canvas"
 import EditWrapper from "@/components/EditWrapper"
 import Input from "@/components/Input"
 import { useAppDispatch, useAppSelector } from "@/store"
-import { setImage } from "@/store/slices/image"
+import { setImage, setSpace } from "@/store/slices/image"
 import { IImage, IPoint } from "@/store/slices/image/types"
 import { text16, text16Medium } from "@/utils/fonts"
 import { calculateAntiAliasing } from "@/utils/functions/calculateAntiAliasing"
+import { parseInputValue } from "@/utils/functions/validateNumber"
 import { spaces } from "@/utils/spaces"
 
 interface IColorSquareProps {
@@ -37,17 +44,17 @@ export default function Lines() {
   ) => {
     const target = event.target
     const copy = channelValues.slice()
-    copy[idx] = +target.value
+    copy[idx] = parseInputValue(target.value)
     setChannelValues(copy)
   }
 
   const handleWidthInput = useCallback<ChangeEventHandler<HTMLInputElement>>(
-    ({ target }) => setWidth(+target.value),
+    ({ target }) => setWidth(parseInputValue(target.value)),
     []
   )
 
   const handleOpacityInput = useCallback<ChangeEventHandler<HTMLInputElement>>(
-    ({ target }) => setOpacity(+target.value),
+    ({ target }) => setOpacity(parseInputValue(target.value)),
     []
   )
 
@@ -55,8 +62,6 @@ export default function Lines() {
     event: React.MouseEvent<HTMLCanvasElement>,
     canvas: React.RefObject<HTMLCanvasElement>
   ): void => {
-    console.log(event.clientX, event.clientY)
-    console.log(canvas.current?.getBoundingClientRect())
     const rect = canvas.current?.getBoundingClientRect()
     if (!rect || !canvas.current || !image) return
     const x = event.clientX - rect.left
@@ -78,10 +83,8 @@ export default function Lines() {
           width,
           opacity
         )
-        console.log(newPixels)
         draft.pixels = newPixels
       })
-      console.log(image.pixels)
       if (!newImage) return
       dispatch(setImage(newImage))
     } else {
@@ -89,6 +92,10 @@ export default function Lines() {
       setSelectedFirstPoint(true)
     }
   }
+
+  useEffect(() => {
+    dispatch(setSpace("RGB"))
+  }, [dispatch])
 
   return (
     <>
@@ -105,7 +112,7 @@ export default function Lines() {
             <ColorSquare
               color={spaces[space].reverseConverter(channelValues)}
             />
-            {space.split("").map((channel: string, idx: number) => {
+            {"RGB".split("").map((channel: string, idx: number) => {
               return (
                 <Selector key={channel}>
                   <span>{channel}:</span>
@@ -129,7 +136,7 @@ export default function Lines() {
               value={width}
               onChange={handleWidthInput}
               placeholder="0"
-              type="number"
+              type="text"
             />
             <span>px</span>
           </Selector>

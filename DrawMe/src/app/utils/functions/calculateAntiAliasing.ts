@@ -33,7 +33,10 @@ export function calculateAntiAliasing(
     base2: number,
     h: number
   ): number => {
-    return Math.min((Math.abs(base1) + Math.abs(base2)) * h / 2, maxApproximate)
+    return Math.min(
+      ((Math.abs(base1) + Math.abs(base2)) * h) / 2,
+      maxApproximate
+    )
   }
   const calcTriangleArea = (
     x1: number,
@@ -208,7 +211,16 @@ export function calculateAntiAliasing(
 
     // 1 boolean is true
 
-    let xC: number, xK: number, best1x: number, best2x: number, best1y: number, best2y: number, x4: number, y4: number, x5: number, y5: number
+    let xC: number,
+      xK: number,
+      best1x: number,
+      best2x: number,
+      best1y: number,
+      best2y: number,
+      x4: number,
+      y4: number,
+      x5: number,
+      y5: number
 
     if (LTin && !RTin && !LBin && !RBin) {
       x1 = (pixelT - bR) / aR
@@ -290,15 +302,21 @@ export function calculateAntiAliasing(
       x: pixel.x,
       y: aM * pixel.x + bM,
     }
-    if (!(lineContainsPixel(lineCenter) && Math.abs(lineCenter.y - pixel.y) <= 0.5)) {
+    if (
+      !(
+        lineContainsPixel(lineCenter) && Math.abs(lineCenter.y - pixel.y) <= 0.5
+      )
+    ) {
       return [0, 0, 0]
     }
-    
+
     const belowY = pixel.y + 0.5
     const aboveY = pixel.y - 0.5
     const percentageBelow = Math.max(0, lineCenter.y + lineWidth / 2 - belowY)
     const percentageAbove = Math.max(0, aboveY - (lineCenter.y - lineWidth / 2))
-    const percentageMid = Math.min(lineWidth / 2, belowY - lineCenter.y) + Math.min(lineWidth / 2, lineCenter.y - aboveY)
+    const percentageMid =
+      Math.min(lineWidth / 2, belowY - lineCenter.y) +
+      Math.min(lineWidth / 2, lineCenter.y - aboveY)
     return [percentageAbove, percentageMid, percentageBelow]
   }
 
@@ -307,15 +325,21 @@ export function calculateAntiAliasing(
       x: (pixel.y - bM) / aM,
       y: pixel.y,
     }
-    if (!(lineContainsPixel(lineCenter) && Math.abs(lineCenter.x - pixel.x) <= 0.5)) {
+    if (
+      !(
+        lineContainsPixel(lineCenter) && Math.abs(lineCenter.x - pixel.x) <= 0.5
+      )
+    ) {
       return [0, 0, 0]
     }
-    
+
     const leftX = pixel.x - 0.5
     const rightX = pixel.x + 0.5
     const percentageRight = Math.max(0, lineCenter.x + lineWidth / 2 - rightX)
     const percentageLeft = Math.max(0, leftX - (lineCenter.x - lineWidth / 2))
-    const percentageMid = Math.min(lineWidth / 2, rightX - lineCenter.x) + Math.min(lineWidth / 2, lineCenter.x - leftX)
+    const percentageMid =
+      Math.min(lineWidth / 2, rightX - lineCenter.x) +
+      Math.min(lineWidth / 2, lineCenter.x - leftX)
     return [percentageLeft, percentageMid, percentageRight]
   }
 
@@ -378,7 +402,7 @@ export function calculateAntiAliasing(
   if (start.x === end.x) {
     end.x += 1
   }
-  
+
   if (start.y < end.y) {
     lt.x = start.x - d.x
     lt.y = start.y + d.y
@@ -422,7 +446,8 @@ export function calculateAntiAliasing(
     share: number
   ): number => {
     return Math.round(
-      backgroundColor * (1 - lineOpacity * share) + lineColor * lineOpacity * share
+      backgroundColor * (1 - lineOpacity * share) +
+        lineColor * lineOpacity * share
     )
   }
 
@@ -444,11 +469,19 @@ export function calculateAntiAliasing(
         if (share[1] !== 0) {
           for (let j = 0; j < 3; j += 1) {
             if (i - canvasLength * 3 + j >= 0) {
-              newPixels[i - canvasLength * 3 + j] = mixColor(pixels[i - canvasLength * 3 + j], lineColor[j], share[0])
+              newPixels[i - canvasLength * 3 + j] = mixColor(
+                pixels[i - canvasLength * 3 + j],
+                lineColor[j],
+                share[0]
+              )
             }
             newPixels[i + j] = mixColor(pixels[i + j], lineColor[j], share[1])
             if (i + canvasLength * 3 + j < pixels.length) {
-              newPixels[i + canvasLength * 3 + j] = mixColor(pixels[i + canvasLength * 3 + j], lineColor[j], share[2])
+              newPixels[i + canvasLength * 3 + j] = mixColor(
+                pixels[i + canvasLength * 3 + j],
+                lineColor[j],
+                share[2]
+              )
             }
           }
         }
@@ -460,11 +493,19 @@ export function calculateAntiAliasing(
         if (share[1] !== 0) {
           for (let j = 0; j < 3; j += 1) {
             if (i - 3 + j >= 0) {
-              newPixels[i - 3 + j] = mixColor(pixels[i - 3 + j], lineColor[j], share[0])
+              newPixels[i - 3 + j] = mixColor(
+                pixels[i - 3 + j],
+                lineColor[j],
+                share[0]
+              )
             }
             newPixels[i + j] = mixColor(pixels[i + j], lineColor[j], share[1])
             if (i + 3 + j < pixels.length) {
-              newPixels[i + 3 + j] = mixColor(pixels[i + 3 + j], lineColor[j], share[2])
+              newPixels[i + 3 + j] = mixColor(
+                pixels[i + 3 + j],
+                lineColor[j],
+                share[2]
+              )
             }
           }
         }
