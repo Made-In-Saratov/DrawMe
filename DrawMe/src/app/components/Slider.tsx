@@ -20,8 +20,7 @@ export default function Slider({
   useEffect(() => {
     const percent = ((value - min) / (max - min)) * 100
     slider.current!.style.background = `linear-gradient(to right, var(--magenta) 0%, var(--light-blue) ${percent}%, var(--white) ${percent}%, var(--white) 100%)`
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [max, min, value])
 
   const handleChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
     ({ target: { value } }) => onChange(Number(value)),
