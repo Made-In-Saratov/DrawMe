@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useState } from "react"
 
 import { Helmet } from "react-helmet-async"
 import styled from "styled-components"
@@ -27,7 +27,7 @@ export default function Scaling() {
   return (
     <>
       <Helmet>
-        <title>Масштабирование</title>
+        <title>Масштаб</title>
       </Helmet>
 
       <StyledEditWrapper>
@@ -40,7 +40,7 @@ export default function Scaling() {
         <Line />
 
         <BCInputBlock>
-          <span>Ширина</span>
+          <span>Размеры</span>
           <div>
             <Input
               type="number"
@@ -77,7 +77,6 @@ export default function Scaling() {
               onChange={() => {}}
               placeholder="↓"
             />
-            px
           </div>
         </InputBlock>
 
@@ -137,6 +136,10 @@ const InputBlock = styled.div`
   gap: 10px;
 
   ${text16};
+
+  > span {
+    width: max-content;
+  }
 
   > div {
     display: flex;

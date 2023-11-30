@@ -47,7 +47,7 @@ const tabs: ITabDescription[] = [
     Icon: GradientIcon,
   },
   {
-    title: "Масштабирование",
+    title: "Масштаб",
     tab: "scaling",
     Icon: ScaleIcon,
   },
