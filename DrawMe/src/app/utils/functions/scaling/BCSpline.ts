@@ -4,6 +4,8 @@ export default function BCSpline({
   height,
   newWidth,
   newHeight,
+  offsetX,
+  offsetY,
   args = { B: 0, C: 0 },
 }: {
   pixels: number[]
@@ -11,6 +13,8 @@ export default function BCSpline({
   height: number
   newWidth: number
   newHeight: number
+  offsetX: number
+  offsetY: number
   args?: Record<string, number>
 }) {
   const { B, C } = args

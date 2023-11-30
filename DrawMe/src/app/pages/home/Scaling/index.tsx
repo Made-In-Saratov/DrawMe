@@ -26,7 +26,7 @@ export default function Scaling() {
     image?.width.toString() ?? "0"
   )
   const [newHeight, setNewHeight] = useState<string>(
-    image?.width.toString() ?? "0"
+    image?.height.toString() ?? "0"
   )
 
   const [offsetX, setOffsetX] = useState<string>("0")
@@ -80,6 +80,8 @@ export default function Scaling() {
         height,
         newWidth: Number(newWidth),
         newHeight: Number(newHeight),
+        offsetX: Number(offsetX),
+        offsetY: Number(offsetY),
       })
       dispatch(
         setPixels({
@@ -89,7 +91,7 @@ export default function Scaling() {
         })
       )
     }
-  }, [dispatch, image, newHeight, newWidth, scalingAlgorithm])
+  }, [dispatch, image, newHeight, newWidth, offsetX, offsetY, scalingAlgorithm])
 
   return (
     <>

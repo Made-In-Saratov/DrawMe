@@ -10,6 +10,8 @@ type ApplyFunctionT = ({
   height,
   newWidth,
   newHeight,
+  offsetX,
+  offsetY,
   args,
 }: {
   pixels: number[]
@@ -17,6 +19,8 @@ type ApplyFunctionT = ({
   height: number
   newWidth: number
   newHeight: number
+  offsetX: number
+  offsetY: number
   args?: Record<string, number>
 }) => number[]
 

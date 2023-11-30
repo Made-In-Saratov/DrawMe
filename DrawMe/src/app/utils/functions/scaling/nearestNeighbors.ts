@@ -4,43 +4,40 @@ export default function nearestNeighbors({
   height,
   newWidth,
   newHeight,
+  offsetX,
+  offsetY,
 }: {
   pixels: number[]
   width: number
   height: number
   newWidth: number
   newHeight: number
+  offsetX: number
+  offsetY: number
 }) {
   const newPixels = new Array(newHeight * newWidth * 3)
-  let position: number
+  let positionHorizontal, positionVertical: number
 
-  for (let row = 0; row < height; row++) {
-    for (let i = 0; i < newWidth; i++) {
-      position = Math.round((i / newWidth) * width)
-      newPixels[row * newWidth * 3 + i * 3] =
-        pixels[row * width * 3 + position * 3]
-      newPixels[row * newWidth * 3 + i * 3 + 1] =
-        pixels[row * width * 3 + position * 3 + 1]
-      newPixels[row * newWidth * 3 + i * 3 + 2] =
-        pixels[row * width * 3 + position * 3 + 2]
-    }
-  }
+  for (let row = 0; row < newHeight; row++) {
+    for (let col = 0; col < newWidth; col++) {
+      positionHorizontal = Math.round(
+        ((col + 0.5) / newWidth + offsetX) * width - (0.5 * width) / newWidth
+      )
+      if (positionHorizontal < 0) positionHorizontal = 0
+      else if (positionHorizontal > width - 1) positionHorizontal = width - 1
+      else positionHorizontal = Math.round(positionHorizontal)
 
-  for (let col = 0; col < width; col++) {
-    for (let i = 0; i < newHeight; i++) {
-      position = Math.round((i / newHeight) * height)
-      newPixels[i * newWidth * 3 + col * 3] =
-        (newPixels[i * newWidth * 3 + col * 3] +
-          newPixels[position * newWidth * 3 + col * 3]) /
-        2
-      newPixels[i * newWidth * 3 + col * 3 + 1] =
-        (newPixels[i * newWidth * 3 + col * 3 + 1] +
-          newPixels[position * newWidth * 3 + col * 3 + 1]) /
-        2
-      newPixels[i * newWidth * 3 + col * 3 + 2] =
-        (newPixels[i * newWidth * 3 + col * 3 + 2] +
-          newPixels[position * newWidth * 3 + col * 3 + 2]) /
-        2
+      positionVertical =
+        ((row + 0.5) / newHeight + offsetY) * height -
+        (0.5 * height) / newHeight
+      if (positionVertical < 0) positionVertical = 0
+      else if (positionVertical > height - 1) positionVertical = height - 1
+      else positionVertical = Math.round(positionVertical)
+
+      for (let color = 0; color < 3; color++) {
+        newPixels[3 * (row * newWidth + col) + color] =
+          pixels[3 * (positionVertical * width + positionHorizontal) + color]
+      }
     }
   }
 
