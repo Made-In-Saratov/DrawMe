@@ -16,15 +16,6 @@ export default function Scaling() {
   const [scalingAlgorithm, setScalingAlgorithm] =
     useState<ScalingAlgorithmT>("NearestNeighbor")
 
-  useEffect(() => {
-    const onResize = (event: UIEvent) => {
-      event.preventDefault()
-      console.log(event)
-    }
-    window.addEventListener("resize", onResize)
-    return () => window.removeEventListener("resize", onResize)
-  }, [])
-
   const handleItemChange = useCallback((item: string) => {
     for (const [key, value] of Object.entries(scaling))
       if (value.name === item) {
@@ -48,7 +39,7 @@ export default function Scaling() {
 
         <Line />
 
-        <InputBlock>
+        <BCInputBlock>
           <span>Ширина</span>
           <div>
             <Input
@@ -66,7 +57,7 @@ export default function Scaling() {
             />
             px
           </div>
-        </InputBlock>
+        </BCInputBlock>
 
         <Line />
 
@@ -75,20 +66,46 @@ export default function Scaling() {
           <div>
             <Input
               type="number"
-              value={""}
+              value={0}
               onChange={() => {}}
               placeholder="→"
             />
             ,
             <Input
               type="number"
-              value={""}
+              value={0}
               onChange={() => {}}
               placeholder="↓"
             />
             px
           </div>
         </InputBlock>
+
+        {scalingAlgorithm === "BCSpline" && (
+          <>
+            <Line />
+
+            <BCInputBlock>
+              <span>BC параметры</span>
+              <div>
+                B:
+                <Input
+                  type="number"
+                  value={0}
+                  onChange={() => {}}
+                  placeholder="B"
+                />
+                C:
+                <Input
+                  type="number"
+                  value={0}
+                  onChange={() => {}}
+                  placeholder="C"
+                />
+              </div>
+            </BCInputBlock>
+          </>
+        )}
 
         <Button data-type="primary" onClick={() => {}}>
           Применить
@@ -135,6 +152,16 @@ const InputBlock = styled.div`
         -webkit-appearance: none;
         margin: 0;
       }
+    }
+  }
+`
+
+const BCInputBlock = styled(InputBlock)`
+  > div {
+    gap: 6px;
+
+    > ${Input} {
+      width: 50px;
     }
   }
 `
