@@ -2,7 +2,8 @@ import { ScalingAlgorithmT } from "@/pages/home/Scaling/types"
 import BCSpline from "@/utils/functions/scaling/BCSpline"
 import bilinear from "@/utils/functions/scaling/bilinear"
 import lancoz from "@/utils/functions/scaling/lancoz"
-import nearestNeighbors from "@/utils/functions/scaling/nearestNeighbors"
+import nearestNeighborsKernel from "@/utils/functions/scaling/nearestNeighbourKernel"
+import nearestNeighbors from "@/utils/functions/scaling/nearestNeighbourKernel"
 
 type ApplyFunctionT = ({
   pixels,
@@ -32,7 +33,7 @@ export interface IScalingAlgorithmDetails {
 export const scaling: Record<ScalingAlgorithmT, IScalingAlgorithmDetails> = {
   NearestNeighbor: {
     name: "Nearest Neighbor",
-    apply: nearestNeighbors,
+    apply: nearestNeighborsKernel,
   },
   Bilinear: {
     name: "Bilinear",
