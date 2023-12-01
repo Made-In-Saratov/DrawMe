@@ -56,7 +56,7 @@ export default function lancoz({
                 pixels[
                   3 * (row * width + scalingCoefsHorizontal[param * 2]) + color
                 ]
-          newPixelsHorizontal[3 * (row * newWidth + col) + color] = value
+          newPixelsHorizontal[3 * (row * newWidth + col) + color] = clamp(value)
         }
       else {
         value = 0
@@ -68,7 +68,7 @@ export default function lancoz({
             value +=
               scalingCoefsHorizontal[param * 2 + 1] *
               pixels[row * width + scalingCoefsHorizontal[param * 2]]
-        newPixelsHorizontal[row * newWidth + col] = value
+        newPixelsHorizontal[row * newWidth + col] = clamp(value)
       }
     }
   }
@@ -89,7 +89,7 @@ export default function lancoz({
                 newPixelsHorizontal[
                   3 * (scalingCoefsVertical[param * 2] * newWidth + col) + color
                 ]
-          newPixelsFinal[3 * (row * newWidth + col) + color] = value
+          newPixelsFinal[3 * (row * newWidth + col) + color] = clamp(value)
         }
       else {
         value = 0
@@ -103,7 +103,7 @@ export default function lancoz({
               newPixelsHorizontal[
                 scalingCoefsVertical[param * 2] * newWidth + col
               ]
-        newPixelsFinal[row * newWidth + col] = value
+        newPixelsFinal[row * newWidth + col] = clamp(value)
       }
     }
   }
@@ -156,4 +156,8 @@ function calcKernel(kernelCenter: number, x: number) {
 function sinc(x: number) {
   if (x === 0) return 1
   return Math.sin(Math.PI * x) / (Math.PI * x)
+}
+
+function clamp(value: number) {
+  return Math.max(Math.min(value, 255), 0)
 }
