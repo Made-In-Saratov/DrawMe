@@ -15,6 +15,8 @@ export default function bilinear({
   offsetX: number
   offsetY: number
 }) {
+  const isP6 = pixels.length === width * height * 3
+
   const newPixelsFinal = new Array(newHeight * newWidth * 3)
   let value: number
 
@@ -22,44 +24,51 @@ export default function bilinear({
   const horizontalScales = new Array(newWidth)
   const verticalScales = new Array(newHeight)
 
-  for (let col = 0; col < newWidth; col++) {
-    console.log(`col: ${col}`)
+  for (let col = 0; col < newWidth; col++)
     horizontalScales[col] = findKernelCoefs(
       ((col + 0.5 + offsetX * newWidth) / newWidth) * width,
       width
     )
-  }
 
-  for (let row = 0; row < newHeight; row++) {
-    console.log(`row: ${row}`)
+  for (let row = 0; row < newHeight; row++)
     verticalScales[row] = findKernelCoefs(
       ((row + 0.5 + offsetY * newHeight) / newHeight) * height,
       height
     )
-  }
 
   for (let row = 0; row < height; row++) {
     for (let col = 0; col < newWidth; col++) {
       const scalingCoefsHorizontal = horizontalScales[col]
-      for (let color = 0; color < 3; color++) {
+      if (isP6)
+        for (let color = 0; color < 3; color++) {
+          value = 0
+          for (
+            let param = 0;
+            param < scalingCoefsHorizontal.length / 2;
+            param++
+          )
+            if (
+              scalingCoefsHorizontal[param * 2] >= 0 &&
+              scalingCoefsHorizontal[param * 2] <= width - 1
+            )
+              value +=
+                scalingCoefsHorizontal[param * 2 + 1] *
+                pixels[
+                  3 * (row * width + scalingCoefsHorizontal[param * 2]) + color
+                ]
+          newPixelsHorizontal[3 * (row * newWidth + col) + color] = value
+        }
+      else {
         value = 0
-        for (
-          let param = 0;
-          param < scalingCoefsHorizontal.length / 2;
-          param++
-        ) {
+        for (let param = 0; param < scalingCoefsHorizontal.length / 2; param++)
           if (
             scalingCoefsHorizontal[param * 2] >= 0 &&
             scalingCoefsHorizontal[param * 2] <= width - 1
-          ) {
+          )
             value +=
               scalingCoefsHorizontal[param * 2 + 1] *
-              pixels[
-                3 * (row * width + scalingCoefsHorizontal[param * 2]) + color
-              ]
-          }
-        }
-        newPixelsHorizontal[3 * (row * newWidth + col) + color] = value
+              pixels[row * width + scalingCoefsHorizontal[param * 2]]
+        newPixelsHorizontal[row * newWidth + col] = value
       }
     }
   }
@@ -67,21 +76,34 @@ export default function bilinear({
   for (let col = 0; col < newWidth; col++) {
     for (let row = 0; row < newHeight; row++) {
       const scalingCoefsVertical = verticalScales[row]
-      for (let color = 0; color < 3; color++) {
+      if (isP6)
+        for (let color = 0; color < 3; color++) {
+          value = 0
+          for (let param = 0; param < scalingCoefsVertical.length / 2; param++)
+            if (
+              scalingCoefsVertical[param * 2] >= 0 &&
+              scalingCoefsVertical[param * 2] <= height - 1
+            )
+              value +=
+                scalingCoefsVertical[param * 2 + 1] *
+                newPixelsHorizontal[
+                  3 * (scalingCoefsVertical[param * 2] * newWidth + col) + color
+                ]
+          newPixelsFinal[3 * (row * newWidth + col) + color] = value
+        }
+      else {
         value = 0
-        for (let param = 0; param < scalingCoefsVertical.length / 2; param++) {
+        for (let param = 0; param < scalingCoefsVertical.length / 2; param++)
           if (
             scalingCoefsVertical[param * 2] >= 0 &&
             scalingCoefsVertical[param * 2] <= height - 1
-          ) {
+          )
             value +=
               scalingCoefsVertical[param * 2 + 1] *
               newPixelsHorizontal[
-                3 * (scalingCoefsVertical[param * 2] * newWidth + col) + color
+                scalingCoefsVertical[param * 2] * newWidth + col
               ]
-          }
-        }
-        newPixelsFinal[3 * (row * newWidth + col) + color] = value
+        newPixelsFinal[row * newWidth + col] = value
       }
     }
   }
@@ -90,7 +112,6 @@ export default function bilinear({
 }
 
 function findKernelCoefs(center: number, oldDimension: number) {
-  console.log(`center: ${center}`)
   const closest = Math.round(center)
   const result = new Array(6)
   if (closest < center) {
@@ -115,8 +136,6 @@ function findKernelCoefs(center: number, oldDimension: number) {
     Math.max(Math.min(center, oldDimension), 0),
     result[4] + 0.5
   )
-
-  console.log(result)
 
   const norma = result[1] + result[3] + result[5]
   result[1] /= norma
