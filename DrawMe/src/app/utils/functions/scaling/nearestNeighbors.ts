@@ -20,8 +20,9 @@ export default function nearestNeighbors({
 
   for (let row = 0; row < newHeight; row++) {
     for (let col = 0; col < newWidth; col++) {
-      positionHorizontal =
+      positionHorizontal = Math.round(
         ((col + 0.5) / newWidth + offsetX) * width - (0.5 * width) / newWidth
+      )
       if (positionHorizontal < 0) positionHorizontal = 0
       else if (positionHorizontal > width - 1) positionHorizontal = width - 1
       else positionHorizontal = Math.round(positionHorizontal)
