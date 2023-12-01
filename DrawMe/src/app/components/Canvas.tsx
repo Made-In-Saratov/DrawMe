@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react"
 
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch"
 import styled from "styled-components"
 
 import { useAppSelector } from "@/store"
@@ -95,7 +96,11 @@ function Canvas({ onClickHandler = () => {} }: ICanvasProps) {
 
   return (
     <Wrapper>
-      <StyledCanvas ref={canvas} onClick={e => onClickHandler(e, canvas)} />
+      <TransformWrapper>
+        <TransformComponent>
+          <StyledCanvas ref={canvas} onClick={e => onClickHandler(e, canvas)} />
+        </TransformComponent>
+      </TransformWrapper>
     </Wrapper>
   )
 }
@@ -104,12 +109,10 @@ const Wrapper = styled.div`
   border-radius: 8px;
   background: #ffffff;
   box-shadow: 4px 8px 20px 0 rgba(16, 0, 65, 0.15);
-
   width: fit-content;
   height: fit-content;
   padding: 15px;
   box-sizing: border-box;
-
   margin: 0 auto;
 `
 

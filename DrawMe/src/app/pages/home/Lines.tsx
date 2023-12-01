@@ -34,7 +34,8 @@ export default function Lines() {
   const [width, setWidth] = useState<number>(0)
   const [opacity, setOpacity] = useState<number>(1)
   const [points, setPoints] = useState<IPoint[]>([])
-  const [isSelectedFirstPoint, setSelectedFirstPoint] = useState<boolean>(false)
+  const [isSelectedFirstPoint, setIsSelectedFirstPoint] =
+    useState<boolean>(false)
 
   const handleColorInput = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -70,7 +71,7 @@ export default function Lines() {
     }
     if (isSelectedFirstPoint) {
       setPoints([points[0], newPoint])
-      setSelectedFirstPoint(false)
+      setIsSelectedFirstPoint(false)
       const newImage = produce(image, draft => {
         if (!draft || !image || !canvas.current) return
         const correctedImage = gammaCorrection(image, 0)
@@ -90,7 +91,7 @@ export default function Lines() {
       dispatch(setImage(correctedNewImage))
     } else {
       setPoints([newPoint, points[1]])
-      setSelectedFirstPoint(true)
+      setIsSelectedFirstPoint(true)
     }
   }
 

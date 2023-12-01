@@ -1,8 +1,8 @@
 import { IPoint } from "@/store/slices/image/types"
 
-const defaultPointValue: IPoint = { x: -1, y: -1 }
-const maxApproximate = 0.95
-const narrowLineTreshold = 2
+const DEFAULT_POINT: IPoint = { x: -1, y: -1 }
+const MAX_APPROXIMATE = 0.95
+const NARROW_LINE_THRESHOLD = 2
 
 export function calculateAntiAliasing(
   pixels: number[],
@@ -21,7 +21,7 @@ export function calculateAntiAliasing(
   }
 
   const calcTrapezoidArea = (base1: number, base2: number, h: number) =>
-    Math.min(((Math.abs(base1) + Math.abs(base2)) * h) / 2, maxApproximate)
+    Math.min(((Math.abs(base1) + Math.abs(base2)) * h) / 2, MAX_APPROXIMATE)
 
   const calcTriangleArea = (
     x1: number,
@@ -320,7 +320,7 @@ export function calculateAntiAliasing(
   const dist = lineWidth / 2
   const start = points[0].x < points[1].x ? points[0] : points[1]
   const end = points[0].x > points[1].x ? points[0] : points[1]
-  const d: IPoint = { ...defaultPointValue }
+  const d: IPoint = { ...DEFAULT_POINT }
   let cosAlpha: number
   let sinAlpha: number
   if (start.y !== end.y) {
@@ -339,10 +339,10 @@ export function calculateAntiAliasing(
   }
 
   // line rectangle points
-  const lt: IPoint = { ...defaultPointValue }
-  const rt: IPoint = { ...defaultPointValue }
-  const lb: IPoint = { ...defaultPointValue }
-  const rb: IPoint = { ...defaultPointValue }
+  const lt: IPoint = { ...DEFAULT_POINT }
+  const rt: IPoint = { ...DEFAULT_POINT }
+  const lb: IPoint = { ...DEFAULT_POINT }
+  const rb: IPoint = { ...DEFAULT_POINT }
   let aT: number, bT: number
   let aB: number, bB: number
   let aL: number, bL: number
@@ -424,7 +424,7 @@ export function calculateAntiAliasing(
 
   const newPixels = [...pixels]
 
-  if (lineWidth > narrowLineTreshold) {
+  if (lineWidth > NARROW_LINE_THRESHOLD) {
     for (let i = 0; i < pixels.length; i += 3) {
       const point = calcPixelPosition(i / 3)
       const share = countPercentageBasic(point)

@@ -11,12 +11,14 @@ import Navbar from "@/components/Navbar"
 import Dithering from "@/pages/home/Dithering"
 import Gamma from "@/pages/home/Gamma"
 import Lines from "@/pages/home/Lines"
+import Scaling from "@/pages/home/Scaling"
 import Spaces from "@/pages/home/Spaces"
 import ColorIcon from "~/assets/ColorIcon"
 import GammaIcon from "~/assets/GammaIcon"
 import GradientIcon from "~/assets/GradientIcon"
 import ImageIcon from "~/assets/ImageIcon"
 import LineIcon from "~/assets/LineIcon"
+import ScaleIcon from "~/assets/ScaleIcon"
 
 const tabs: ITabDescription[] = [
   {
@@ -44,6 +46,11 @@ const tabs: ITabDescription[] = [
     tab: "dithering",
     Icon: GradientIcon,
   },
+  {
+    title: "Масштаб",
+    tab: "scaling",
+    Icon: ScaleIcon,
+  },
 ]
 
 export default function TabRouter() {
@@ -61,6 +68,8 @@ export default function TabRouter() {
         return Lines
       case "dithering":
         return Dithering
+      case "scaling":
+        return Scaling
       default:
         return Home
     }
