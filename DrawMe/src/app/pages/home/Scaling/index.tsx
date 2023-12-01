@@ -93,6 +93,16 @@ export default function Scaling() {
     }
   }, [dispatch, image, newHeight, newWidth, offsetX, offsetY, scalingAlgorithm])
 
+  const isDisabled =
+    Number(newWidth) < 1 ||
+    Number(newHeight) < 1 ||
+    Number(offsetX) > 0.5 ||
+    Number(offsetY) > 0.5 ||
+    Number(offsetX) < -0.5 ||
+    Number(offsetY) < -0.5 ||
+    (scalingAlgorithm === "BCSpline" &&
+      (Number(b) < 0 || Number(b) > 1 || Number(c) < 0 || Number(c) > 1))
+
   return (
     <>
       <Helmet>
@@ -175,7 +185,7 @@ export default function Scaling() {
           </>
         )}
 
-        <Button data-type="primary" onClick={handleApply}>
+        <Button data-type="primary" onClick={handleApply} disabled={isDisabled}>
           Применить
         </Button>
       </StyledEditWrapper>
