@@ -15,6 +15,8 @@ export default function nearestNeighbors({
   offsetX: number
   offsetY: number
 }) {
+  const isP6 = pixels.length === width * height * 3
+
   const newPixels = new Array(newHeight * newWidth * 3)
   let positionHorizontal, positionVertical: number
 
@@ -33,10 +35,14 @@ export default function nearestNeighbors({
       else if (positionVertical > height - 1) positionVertical = height - 1
       else positionVertical = Math.floor(positionVertical)
 
-      for (let color = 0; color < 3; color++) {
-        newPixels[3 * (row * newWidth + col) + color] =
-          pixels[3 * (positionVertical * width + positionHorizontal) + color]
-      }
+      if (isP6)
+        for (let color = 0; color < 3; color++) {
+          newPixels[3 * (row * newWidth + col) + color] =
+            pixels[3 * (positionVertical * width + positionHorizontal) + color]
+        }
+      else
+        newPixels[row * newWidth + col] =
+          pixels[positionVertical * width + positionHorizontal]
     }
   }
 
