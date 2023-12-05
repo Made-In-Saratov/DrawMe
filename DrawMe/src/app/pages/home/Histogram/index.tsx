@@ -3,18 +3,32 @@ import { useCallback } from "react"
 import { Helmet } from "react-helmet-async"
 import styled from "styled-components"
 
+import HistogramChart from "./HistogramChart"
+import { ChannelDataT } from "./types"
+
+import Button from "@/components/Button"
 import EditWrapper from "@/components/EditWrapper"
 import Input from "@/components/Input"
 import Tooltip from "@/components/Tooltip"
 import { useAppDispatch, useAppSelector } from "@/store"
 import { setGamma, setImage } from "@/store/slices/image"
 import { text16 } from "@/utils/fonts"
-import Button from "@/components/Button"
+import { spaces } from "@/utils/spaces"
 
 export default function Histogram() {
   const dispatch = useAppDispatch()
 
-  const { src: image, convertedGamma } = useAppSelector(({ image }) => image)
+  const { src: image, space } = useAppSelector(({ image }) => image)
+
+  const getChannelData = (channelNumber: number): number[] =>
+    image?.pixels.filter((_, idx) => idx % 3 === channelNumber) || []
+
+  const getHistogramData = (channelNumber: number): number[] => {
+    const histogramData: number[] = new Array(256).fill(0)
+    const channelData: number[] = getChannelData(channelNumber)
+    channelData.forEach(value => (histogramData[value] += 1))
+    return histogramData
+  }
 
   return (
     <>
@@ -53,6 +67,16 @@ export default function Histogram() {
           </Button>
         </Column>
       </StyledEditWrapper>
+
+      <HistogramSidebar>
+        {spaces[space].channels.map((channelName, index) => (
+          <HistogramChart
+            key={channelName}
+            channelLabel={`Канал ${channelName}:`}
+            data={getHistogramData(index)}
+          />
+        ))}
+      </HistogramSidebar>
     </>
   )
 }
@@ -91,4 +115,17 @@ const CorrectionControl = styled.div`
   > ${Input} {
     width: 70px;
   }
+`
+
+const HistogramSidebar = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  padding: 20px;
+  background: white;
+  border-radius: 25px;
 `

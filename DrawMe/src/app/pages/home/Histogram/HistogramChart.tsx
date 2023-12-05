@@ -1,105 +1,121 @@
+import React, { useState, useEffect, useRef } from "react"
+
 import {
-  ChangeEventHandler,
-  MouseEventHandler,
-  useCallback,
-  useEffect,
-  useState,
-} from "react"
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartData,
+  ChartTypeRegistry,
+} from "chart.js"
+import { Line } from "react-chartjs-2"
 
-import styled from "styled-components"
-
-import Button from "@/components/Button"
-import Input from "@/components/Input"
-import Tooltip from "@/components/Tooltip"
-import { useAppSelector } from "@/store"
-import { text16 } from "@/utils/fonts"
-import { parseInputValue } from "@/utils/functions/validateNumber"
-
-interface IGammaEditorProps {
-  title: string
-  tooltip: React.ReactNode
-  autoupdate?: boolean
-
-  onClick?: (gamma: number) => void
+interface HistogramProps {
+  channelLabel: string
+  data: number[]
 }
 
-export default function HistogramChart({
-  title,
-  tooltip,
-  autoupdate = false,
-  onClick = () => {},
-}: IGammaEditorProps) {
-  const gamma = useAppSelector(({ image }) => image.gamma)
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+)
 
-  const [value, setValue] = useState(autoupdate ? String(gamma) : "0")
+export default function HistogramChart({ channelLabel, data }: HistogramProps) {
+  // const chartRef = useRef<any>(null)
+  const downsampleData = (pixels: number[], width: number) => {
+    const length = data.length
+    const ratio = Math.floor(length / width)
+    const result = new Array(width)
 
-  useEffect(() => {
-    if (autoupdate) setValue(String(gamma))
-  }, [autoupdate, gamma])
+    for (let i = 0; i < width; i++) {
+      const index = Math.min(i * ratio, length - 1)
+      result[i] = pixels[index]
+    }
 
-  const handleInput = useCallback<ChangeEventHandler<HTMLInputElement>>(
-    ({ target }) => setValue(String(parseInputValue(target.value))),
-    []
-  )
+    return result
+  }
 
-  const handleClick = useCallback<MouseEventHandler<HTMLButtonElement>>(() => {
-    const gamma = Number(value)
+  // useEffect(() => {
+  //   if (chartRef.current && chartRef.current.chartInstance) {
+  //     const canvas = chartRef.current.chartInstance.canvas
+  //     const ctx = canvas.getContext("2d")
 
-    onClick(gamma)
-  }, [onClick, value])
+  //     const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0)
+  //     gradient.addColorStop(0, "rgba(104,1,239,1)")
+  //     gradient.addColorStop(1, "rgba(206,65,245,1)")
 
-  const isButtonDisabled =
-    !value || isNaN(Number(value)) || Number(value) < 0 || Number(value) > 100
+  //     ctx.fillStyle = gradient
+  //     ctx.fillRect(0, 0, canvas.width, canvas.height)
+  //   }
+  // }, [])
+
+  console.log(data)
+  data[0] = 0
+  data[255] = 0
 
   return (
-    <Wrapper>
-      <Tooltip>{tooltip}</Tooltip>
-
-      <span>{title}</span>
-      <Input
-        value={value}
-        onChange={handleInput}
-        placeholder="Гамма..."
-        type="number"
-      />
-      <Button
-        data-type="primary"
-        disabled={isButtonDisabled}
-        onClick={handleClick}
-      >
-        Готово
-      </Button>
-    </Wrapper>
+    <Line
+      // ref={chartRef}
+      data={{
+        labels: [...Array(256).keys()],
+        datasets: [
+          {
+            label: channelLabel,
+            data,
+            tension: 0.5,
+            fill: true,
+            borderColor: ["rgba(104,1,239,1)", "rgba(206,65,245,1) 100%)"],
+            backgroundColor: "rgba(206,65,245,1)",
+          },
+        ],
+      }}
+      options={{
+        responsive: false,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            grid: {
+              display: false,
+            },
+          },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              display: false,
+            },
+            grid: {
+              display: false,
+            },
+          },
+        },
+        elements: {
+          point: {
+            radius: 0,
+          },
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: channelLabel,
+            padding: {
+              top: 20,
+              bottom: 20,
+            },
+          },
+          legend: {
+            display: false,
+          },
+        },
+      }}
+    />
   )
 }
-
-const Wrapper = styled.div`
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
-  align-items: center;
-
-  > div:first-child {
-    margin-right: auto;
-  }
-
-  > span {
-    ${text16};
-    color: var(--dark-blue);
-  }
-
-  > ${Input} {
-    width: 120px;
-    appearance: textfield;
-
-    &::-webkit-outer-spin-button,
-    &::-webkit-inner-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-  }
-
-  > ${Button} {
-    width: 84px;
-  }
-`
