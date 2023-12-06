@@ -6,6 +6,7 @@ import {
   LinearScale,
   PointElement,
   LineElement,
+  Filler,
   Title,
   Tooltip,
   Legend,
@@ -24,6 +25,7 @@ ChartJS.register(
   LinearScale,
   PointElement,
   LineElement,
+  Filler,
   Title,
   Tooltip,
   Legend
@@ -58,9 +60,9 @@ export default function HistogramChart({ channelLabel, data }: HistogramProps) {
   //   }
   // }, [])
 
-  console.log(data)
-  data[0] = 0
-  data[255] = 0
+  // console.log(data)
+  // data[0] = 0
+  // data[255] = 0
 
   return (
     <Line
@@ -71,13 +73,15 @@ export default function HistogramChart({ channelLabel, data }: HistogramProps) {
           {
             label: channelLabel,
             data,
-            tension: 0.5,
+            tension: 0.75,
             fill: true,
             borderColor: ["rgba(104,1,239,1)", "rgba(206,65,245,1) 100%)"],
             backgroundColor: "rgba(206,65,245,1)",
           },
         ],
       }}
+      width={300}
+      height={200}
       options={{
         responsive: false,
         maintainAspectRatio: false,
