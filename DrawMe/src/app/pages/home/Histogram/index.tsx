@@ -1,6 +1,6 @@
 import {
   ChangeEvent,
-  MouseEvent,
+  MouseEventHandler,
   useCallback,
   useEffect,
   useState,
@@ -10,16 +10,14 @@ import { Helmet } from "react-helmet-async"
 import styled from "styled-components"
 
 import HistogramChart from "./HistogramChart"
-import { ChannelDataT } from "./types"
 
 import Button from "@/components/Button"
 import EditWrapper from "@/components/EditWrapper"
 import Input from "@/components/Input"
 import Tooltip from "@/components/Tooltip"
 import { useAppDispatch, useAppSelector } from "@/store"
-import { setGamma, setImage, setPixels } from "@/store/slices/image"
+import { setPixels } from "@/store/slices/image"
 import { text16 } from "@/utils/fonts"
-import correctBrightness from "@/utils/functions/autocorrection/correctBrightness"
 import findMinAndMax from "@/utils/functions/autocorrection/findMinAndMax"
 import ignorePixelFraction from "@/utils/functions/autocorrection/ignorePixelFraction"
 import { countSelectedChannels } from "@/utils/functions/countSelectedChannels"
@@ -60,7 +58,7 @@ export default function Histogram() {
     histograms.forEach(histogramData => {
       if (histogramData.length !== 0) {
         const limits = findMinAndMax(
-          image.pixels.length / 3, // TODO think about YCbCr
+          image.pixels.length / 3,
           histogramData,
           inputValue
         )
@@ -68,8 +66,7 @@ export default function Histogram() {
         maxs.push(limits.max)
       }
     })
-    console.log(mins)
-    console.log(maxs)
+
     const yMin = Math.min(...mins)
     const yMax = Math.max(...maxs)
     return ignorePixelFraction(image.pixels, yMin, yMax)
@@ -79,23 +76,18 @@ export default function Histogram() {
     setInputValue(+e.target.value)
   }
 
-  const handleButtonClick = useCallback(
-    (_: MouseEvent<HTMLButtonElement>): void => {
-      if (image) {
-        dispatch(
-          setPixels({
-            ...image,
-            pixels: calculateAutocorrection(),
-          })
-        )
-      }
-    },
-    [calculateAutocorrection, dispatch, image]
-  )
-
-  useEffect(() => {
-    console.log(image?.pixels)
-  }, [image?.pixels])
+  const handleButtonClick = useCallback<
+    MouseEventHandler<HTMLButtonElement>
+  >(() => {
+    if (image) {
+      dispatch(
+        setPixels({
+          ...image,
+          pixels: calculateAutocorrection(),
+        })
+      )
+    }
+  }, [calculateAutocorrection, dispatch, image])
 
   useEffect(() => {
     const sum = countSelectedChannels(channels)
@@ -122,7 +114,7 @@ export default function Histogram() {
             <Tooltip>
               <span>
                 Вы можете игнорировать некоторое количество самых тёмных точек
-                (слева) и самых ярких точек (справа). Значения должны находиться
+                (слева) и самых ярких точек (справа). Значение должно находиться
                 в диапазоне от 0 до 0.5.
               </span>
             </Tooltip>
@@ -132,10 +124,9 @@ export default function Histogram() {
             <CorrectionControlPanel>
               <CorrectionControl>
                 <span>k:</span>
-                <Input
+                <StyledInput
                   placeholder="0"
                   type="number"
-                  width={100}
                   value={inputValue}
                   onChange={handleInputChange}
                 />
@@ -199,10 +190,6 @@ const CorrectionControl = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
-
-  > ${Input} {
-    width: 70px;
-  }
 `
 
 const HistogramSidebar = styled.div`
@@ -216,4 +203,15 @@ const HistogramSidebar = styled.div`
   padding: 20px;
   background: white;
   border-radius: 25px;
+`
+
+const StyledInput = styled(Input)`
+  width: 150px;
+  appearance: textfield;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
 `
