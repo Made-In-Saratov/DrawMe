@@ -1,6 +1,6 @@
 import {
   ChangeEvent,
-  MouseEventHandler,
+  MouseEvent,
   useCallback,
   useEffect,
   useState,
@@ -28,12 +28,13 @@ export default function Histogram() {
 
   const { src: image, space, channels } = useAppSelector(({ image }) => image)
 
-  const [inputValue, setInputValue] = useState<number>(0)
+  const [leftCoef, setLeftCoef] = useState<number>(0)
+  const [rightCoef, setRightCoef] = useState<number>(0)
   const [histograms, setHistograms] = useState<number[][]>([[], [], []])
 
   const getChannelData = useCallback(
     (channelNumber: number): number[] =>
-      image?.pixels.filter((_, idx) => idx % 3 === channelNumber) || [],
+      image?.pixels.filter((_, idx) => idx % 3 === channelNumber) ?? [],
     [image?.pixels]
   )
 
@@ -55,39 +56,60 @@ export default function Histogram() {
     if (!image?.pixels) return []
     const mins: number[] = []
     const maxs: number[] = []
-    histograms.forEach(histogramData => {
-      if (histogramData.length !== 0) {
-        const limits = findMinAndMax(
-          image.pixels.length / 3,
-          histogramData,
-          inputValue
-        )
-        mins.push(limits.min)
-        maxs.push(limits.max)
-      }
-    })
+    if (space[0].toLowerCase() === "y") {
+      const limits = findMinAndMax(
+        image.pixels.length / 3,
+        histograms[0],
+        leftCoef,
+        rightCoef
+      )
+      mins.push(limits.min)
+      maxs.push(limits.max)
+    } else {
+      histograms.forEach(histogramData => {
+        if (histogramData.length !== 0) {
+          const limits = findMinAndMax(
+            image.pixels.length / 3,
+            histogramData,
+            leftCoef,
+            rightCoef
+          )
+          mins.push(limits.min)
+          maxs.push(limits.max)
+        }
+      })
+    }
 
     const yMin = Math.min(...mins)
     const yMax = Math.max(...maxs)
     return ignorePixelFraction(image.pixels, yMin, yMax)
-  }, [histograms, image?.pixels, inputValue])
+  }, [histograms, image?.pixels, leftCoef])
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setInputValue(+e.target.value)
+  const handleLeftChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setLeftCoef(+e.target.value)
   }
 
-  const handleButtonClick = useCallback<
-    MouseEventHandler<HTMLButtonElement>
-  >(() => {
-    if (image) {
-      dispatch(
-        setPixels({
-          ...image,
-          pixels: calculateAutocorrection(),
-        })
-      )
-    }
-  }, [calculateAutocorrection, dispatch, image])
+  const handleRightChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setRightCoef(+e.target.value)
+  }
+
+  const handleButtonClick = useCallback(
+    (_: MouseEvent<HTMLButtonElement>): void => {
+      if (image) {
+        dispatch(
+          setPixels({
+            ...image,
+            pixels: calculateAutocorrection(),
+          })
+        )
+      }
+    },
+    [calculateAutocorrection, dispatch, image]
+  )
+
+  useEffect(() => {
+    console.log(image?.pixels)
+  }, [image?.pixels])
 
   useEffect(() => {
     const sum = countSelectedChannels(channels)
@@ -114,7 +136,7 @@ export default function Histogram() {
             <Tooltip>
               <span>
                 Вы можете игнорировать некоторое количество самых тёмных точек
-                (слева) и самых ярких точек (справа). Значение должно находиться
+                (слева) и самых ярких точек (справа). Значения должны находиться
                 в диапазоне от 0 до 0.5.
               </span>
             </Tooltip>
@@ -123,12 +145,21 @@ export default function Histogram() {
           <Row>
             <CorrectionControlPanel>
               <CorrectionControl>
-                <span>k:</span>
-                <StyledInput
+                <span>Слева:</span>
+                <Input
                   placeholder="0"
                   type="number"
-                  value={inputValue}
-                  onChange={handleInputChange}
+                  width={100}
+                  value={leftCoef}
+                  onChange={handleLeftChange}
+                />
+                <span>Справа:</span>
+                <Input
+                  placeholder="0"
+                  type="number"
+                  width={100}
+                  value={rightCoef}
+                  onChange={handleRightChange}
                 />
               </CorrectionControl>
             </CorrectionControlPanel>
@@ -190,6 +221,10 @@ const CorrectionControl = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
+
+  > ${Input} {
+    width: 70px;
+  }
 `
 
 const HistogramSidebar = styled.div`
@@ -203,15 +238,4 @@ const HistogramSidebar = styled.div`
   padding: 20px;
   background: white;
   border-radius: 25px;
-`
-
-const StyledInput = styled(Input)`
-  width: 150px;
-  appearance: textfield;
-
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    appearance: none;
-    margin: 0;
-  }
 `
