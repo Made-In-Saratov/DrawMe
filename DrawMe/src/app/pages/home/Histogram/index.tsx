@@ -45,7 +45,6 @@ export default function Histogram() {
       channelData.forEach(value => {
         histogramData[Math.round(value)] += 1
       })
-      console.log(channelNumber, channelData, histogramData)
 
       return histogramData
     },
@@ -79,11 +78,14 @@ export default function Histogram() {
         }
       })
     }
+    console.log("mins", mins)
+    console.log("maxs", maxs)
 
     const yMin = Math.min(...mins)
     const yMax = Math.max(...maxs)
+
     return ignorePixelFraction(image.pixels, yMin, yMax)
-  }, [histograms, image?.pixels, leftCoef])
+  }, [histograms, image?.pixels, leftCoef, rightCoef, space])
 
   const handleLeftChange = (e: ChangeEvent<HTMLInputElement>): void => {
     setLeftCoef(+e.target.value)
