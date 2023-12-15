@@ -84,7 +84,12 @@ export default function Histogram() {
     const yMin = Math.min(...mins)
     const yMax = Math.max(...maxs)
 
-    return ignorePixelFraction(image.pixels, yMin, yMax)
+    return ignorePixelFraction(
+      image.pixels,
+      yMin,
+      yMax,
+      space[0].toLowerCase() === "y"
+    )
   }, [histograms, image?.pixels, leftCoef, rightCoef, space])
 
   const handleLeftChange = (e: ChangeEvent<HTMLInputElement>): void => {
