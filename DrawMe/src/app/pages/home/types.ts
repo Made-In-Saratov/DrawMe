@@ -5,6 +5,7 @@ export type TabT =
   | "gamma"
   | "lines"
   | "dithering"
+  | "histogram"
   | "scaling"
 
 export interface ITabDescription {
