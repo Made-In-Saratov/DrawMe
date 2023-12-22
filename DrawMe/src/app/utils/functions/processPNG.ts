@@ -87,34 +87,25 @@ export function processPNG(data: ArrayBuffer): [IImage, number] {
 
         const inflatedData = inflate(mergedData)
         const bytesPerPixel = palette.length !== 0 || !image.isP6 ? 1 : 3
-        const pixels: number[] = []
-        console.log(inflatedData)
+        const pixels = new Array(image.height * image.width * bytesPerPixel)
+
         for (let y = 0; y < image.height; y++) {
           const scanline = inflatedData.slice(
             y * (image.width * bytesPerPixel + 1) + 1,
             (y + 1) * (image.width * bytesPerPixel + 1)
           )
-          // console.log(scanline)
-          const filterType = inflatedData[
-            (image.width * bytesPerPixel + 1) * y
-          ] as 0 | 1 | 2 | 3 | 4
-          console.log(
-            inflatedData.slice(
-              y * (image.width * bytesPerPixel + 1),
-              (y + 1) * (image.width * bytesPerPixel + 1)
-            )[0]
-          )
-          let prevUnfilteredLine = new Uint8Array()
-          const unfilter = unfilters[FILTER_TYPES[filterType]]
-          const unfilteredLine = unfilter(
+          const filterType = inflatedData[(image.width * bytesPerPixel + 1) * y]
+
+          const unfilterFunc = NumToUnfilter[filterType]
+          unfilterFunc(
             scanline,
+            pixels,
             bytesPerPixel,
-            prevUnfilteredLine
+            y * image.width * bytesPerPixel,
+            image.width * bytesPerPixel
           )
-          pixels.push(...unfilteredLine)
-          prevUnfilteredLine = unfilteredLine
         }
-        console.log(pixels)
+
         const result = new Array(image.height * image.width * 3)
         for (let i = 0, j = 0; i < pixels.length; i++) {
           if (palette.length !== 0) {
@@ -131,7 +122,6 @@ export function processPNG(data: ArrayBuffer): [IImage, number] {
 
         image.pixels = result
 
-        console.log(image, gamma)
         return [image, gamma]
       }
       default:
@@ -149,83 +139,149 @@ function readChunkHeader(byteArray: Uint8Array, offset: number) {
   return { chunkLength, chunkType }
 }
 
-const FILTER_TYPES = {
-  0: "none",
-  1: "sub",
-  2: "up",
-  3: "average",
-  4: "paeth",
-} as const
-
-const unfilters = {
-  none: (data: Uint8Array) => {
-    return data
-  },
-  sub: (data: Uint8Array, bytesPerPixel: number) => {
-    const unfiltered = new Uint8Array(data.length)
-    for (let i = 0; i < data.length; i++) {
-      const left = unfiltered[i - bytesPerPixel] || 0
-      unfiltered[i] = (data[i] + left) & 0xff
-    }
-    return unfiltered
-  },
-  up: (
-    data: Uint8Array,
-    bytesPerPixel: number,
-    prevUnfilteredLine: Uint8Array
-  ) => {
-    const unfilteredLine = new Uint8Array(data.length)
-    for (let i = 0; i < data.length; i++) {
-      const up = prevUnfilteredLine[i] || 0
-      unfilteredLine[i] = (up + data[i]) & 0xff
-    }
-    return unfilteredLine
-  },
-  average: (
-    data: Uint8Array,
-    bytesPerPixel: number,
-    prevUnfilteredLine: Uint8Array
-  ) => {
-    const unfilteredLine = new Uint8Array(data.length)
-    for (let i = 0; i < data.length; i += bytesPerPixel) {
-      for (let j = 0; j < bytesPerPixel; j++) {
-        const left = i > 0 ? unfilteredLine[i + j - bytesPerPixel] : 0
-        const above = prevUnfilteredLine[i + j] || 0
-        const avg = (left + above) >> 1
-        unfilteredLine[i + j] = (data[i + j] + avg) & 0xff
-      }
-    }
-    return unfilteredLine
-  },
-  paeth: (
-    data: Uint8Array,
-    bytesPerPixel: number,
-    prevUnfilteredLine: Uint8Array
-  ) => {
-    const unfilteredLine = new Uint8Array(data.length)
-    for (let i = 0; i < data.length; i += bytesPerPixel) {
-      for (let j = 0; j < bytesPerPixel; j++) {
-        const left = i > 0 ? unfilteredLine[i + j - bytesPerPixel] : 0
-        const above = prevUnfilteredLine[i + j] || 0
-        const upperLeft = i > 0 ? prevUnfilteredLine[i + j - bytesPerPixel] : 0
-        const p = paeth(left, above, upperLeft)
-        unfilteredLine[i + j] = (data[i + j] + p) & 0xff
-      }
-    }
-    return unfilteredLine
-  },
+const NumToUnfilter: Record<number, typeof unFilterNone> = {
+  0: unFilterNone,
+  1: unFilterSub,
+  2: unFilterUp,
+  3: unFilterAverage,
+  4: unFilterPaeth,
 }
 
-function paeth(left: number, above: number, upperLeft: number) {
-  const p = left + above - upperLeft
-  const pa = Math.abs(p - left)
-  const pb = Math.abs(p - above)
-  const pc = Math.abs(p - upperLeft)
-  if (pa <= pb && pa <= pc) {
-    return left
-  } else if (pb <= pc) {
-    return above
+/* eslint-disable no-param-reassign */
+function unFilterNone(
+  scanline: Uint8Array,
+  pixels: number[],
+  bpp: number,
+  offset: number,
+  length: number
+) {
+  for (let i = 0, to = length; i < to; i++) pixels[offset + i] = scanline[i]
+}
+
+function unFilterSub(
+  scanline: Uint8Array,
+  pixels: number[],
+  bpp: number,
+  offset: number,
+  length: number
+) {
+  let i = 0
+  for (; i < bpp; i++) pixels[offset + i] = scanline[i]
+  for (; i < length; i++) {
+    // Raw(x) + Raw(x - bpp)
+    pixels[offset + i] = (scanline[i] + pixels[offset + i - bpp]) & 0xff
+  }
+}
+
+function unFilterUp(
+  scanline: Uint8Array,
+  pixels: number[],
+  bpp: number,
+  offset: number,
+  length: number
+) {
+  let i = 0,
+    byte,
+    prev
+  // Prior(x) is 0 for all x on the first scanline
+  if (offset - length < 0)
+    for (; i < length; i++) {
+      pixels[offset + i] = scanline[i]
+    }
+  else
+    for (; i < length; i++) {
+      // Raw(x)
+      byte = scanline[i]
+      // Prior(x)
+      prev = pixels[offset + i - length]
+      pixels[offset + i] = (byte + prev) & 0xff
+    }
+}
+
+function unFilterAverage(
+  scanline: Uint8Array,
+  pixels: number[],
+  bpp: number,
+  offset: number,
+  length: number
+) {
+  let i = 0,
+    byte,
+    prev,
+    prior
+  if (offset === 0) {
+    // Prior(x) == 0 && Raw(x - bpp) == 0
+    for (; i < bpp; i++) {
+      pixels[offset + i] = scanline[i]
+    }
+    // Prior(x) == 0 && Raw(x - bpp) != 0 (right shift, prevent doubles)
+    for (; i < length; i++) {
+      pixels[offset + i] =
+        (scanline[i] + (pixels[offset + i - bpp] >> 1)) & 0xff
+    }
   } else {
-    return upperLeft
+    // Prior(x) != 0 && Raw(x - bpp) == 0
+    for (; i < bpp; i++) {
+      pixels[offset + i] =
+        (scanline[i] + (pixels[offset - length + i] >> 1)) & 0xff
+    }
+    // Prior(x) != 0 && Raw(x - bpp) != 0
+    for (; i < length; i++) {
+      byte = scanline[i]
+      prev = pixels[offset + i - bpp]
+      prior = pixels[offset + i - length]
+      pixels[offset + i] = (byte + ((prev + prior) >> 1)) & 0xff
+    }
+  }
+}
+
+function unFilterPaeth(
+  scanline: Uint8Array,
+  pixels: number[],
+  bpp: number,
+  offset: number,
+  length: number
+) {
+  let i = 0,
+    raw,
+    a,
+    b,
+    c,
+    p,
+    pa,
+    pb,
+    pc,
+    pr
+  if (offset - length < 0) {
+    // Prior(x) == 0 && Raw(x - bpp) == 0
+    for (; i < bpp; i++) {
+      pixels[offset + i] = scanline[i]
+    }
+    // Prior(x) == 0 && Raw(x - bpp) != 0
+    // paethPredictor(x, 0, 0) is always x
+    for (; i < length; i++) {
+      pixels[offset + i] = (scanline[i] + pixels[offset + i - bpp]) & 0xff
+    }
+  } else {
+    // Prior(x) != 0 && Raw(x - bpp) == 0
+    // paethPredictor(x, 0, 0) is always x
+    for (; i < bpp; i++) {
+      pixels[offset + i] = (scanline[i] + pixels[offset + i - length]) & 0xff
+    }
+    // Prior(x) != 0 && Raw(x - bpp) != 0
+    for (; i < length; i++) {
+      raw = scanline[i]
+      a = pixels[offset + i - bpp]
+      b = pixels[offset + i - length]
+      c = pixels[offset + i - length - bpp]
+      p = a + b - c
+      pa = Math.abs(p - a)
+      pb = Math.abs(p - b)
+      pc = Math.abs(p - c)
+      if (pa <= pb && pa <= pc) pr = a
+      else if (pb <= pc) pr = b
+      else pr = c
+      pixels[offset + i] = (raw + pr) & 0xff
+    }
   }
 }
