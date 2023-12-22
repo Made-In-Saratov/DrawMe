@@ -2,6 +2,7 @@ const path = require("path")
 
 const CopyPlugin = require("copy-webpack-plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const webpack = require("webpack")
 
 const isDevelopment = process.env.NODE_ENV === "development"
 
@@ -23,6 +24,14 @@ module.exports = {
     alias: {
       "~": path.resolve("src"),
       "@": path.resolve("src", "app"),
+    },
+    fallback: {
+      process: require.resolve("process/browser"),
+      zlib: require.resolve("browserify-zlib"),
+      stream: require.resolve("stream-browserify"),
+      util: require.resolve("util"),
+      buffer: require.resolve("buffer"),
+      asset: require.resolve("assert"),
     },
   },
   module: {
@@ -55,6 +64,10 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: isDevelopment ? "[name].css" : "[name].[hash].css",
       chunkFilename: isDevelopment ? "[id].css" : "[id].[hash].css",
+    }),
+    new webpack.ProvidePlugin({
+      Buffer: ["buffer", "Buffer"],
+      process: "process/browser",
     }),
   ],
 }

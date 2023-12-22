@@ -2,19 +2,12 @@ import { Helmet } from "react-helmet-async"
 import styled from "styled-components"
 
 import Button from "@/components/Button"
+import DownloadButton from "@/components/DownloadButton"
 import EditWrapper from "@/components/EditWrapper"
-import { useAppSelector } from "@/store"
-import useImageSave from "@/utils/hooks/useImageSave"
 import useImageUpload from "@/utils/hooks/useImageUpload"
 
 export default function Image() {
   const { inputProps, handleClick, isLoading, error } = useImageUpload()
-
-  const handleSaveClick = useImageSave()
-
-  const image = useAppSelector(({ image }) => image.src)
-
-  const isDownloadDisabled = !image
 
   return (
     <>
@@ -27,13 +20,7 @@ export default function Image() {
           {isLoading ? "Загрузка..." : error ? "Ошибка" : "Загрузить другое"}
           <input {...inputProps} />
         </Button>
-        <Button
-          data-type="primary"
-          onClick={handleSaveClick}
-          disabled={isDownloadDisabled}
-        >
-          Скачать изображение
-        </Button>
+        <DownloadButton />
       </StyledEditWrapper>
     </>
   )

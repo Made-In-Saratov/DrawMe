@@ -3,26 +3,23 @@ import { useCallback } from "react"
 import { Helmet } from "react-helmet-async"
 import styled from "styled-components"
 
-import Button from "@/components/Button"
 import Checkbox from "@/components/Checkbox"
+import DownloadButton from "@/components/DownloadButton"
 import Dropdown from "@/components/Dropdown"
 import EditWrapper from "@/components/EditWrapper"
 import { useAppDispatch, useAppSelector } from "@/store"
 import { setChannels, setSpace } from "@/store/slices/image"
 import { SpacesT } from "@/store/slices/image/types"
 import { text14, text14Medium } from "@/utils/fonts"
-import useImageSave from "@/utils/hooks/useImageSave"
 import useImageUpload from "@/utils/hooks/useImageUpload"
 import { spaces } from "@/utils/spaces"
 
 export default function Spaces() {
   const dispatch = useAppDispatch()
 
-  const { space, channels, src: image } = useAppSelector(({ image }) => image)
+  const { space, channels } = useAppSelector(({ image }) => image)
 
   const { inputProps, handleClick, isLoading, error } = useImageUpload()
-
-  const handleSaveClick = useImageSave()
 
   const getCheckboxClickHandler = useCallback(
     (index: number) => () => {
@@ -43,9 +40,6 @@ export default function Spaces() {
     },
     [dispatch]
   )
-
-  const isDownloadDisabled = !image
-
   return (
     <>
       <Helmet>
@@ -59,10 +53,10 @@ export default function Spaces() {
             activeItem={spaces[space].name}
             setActiveItem={handleItemChange}
           />
-          <DownloadButton onClick={handleClick}>
+          <UpButton onClick={handleClick}>
             {isLoading ? "Загрузка..." : error ? "Ошибка" : "Загрузить другое"}
             <input {...inputProps} />
-          </DownloadButton>
+          </UpButton>
         </Column>
 
         <Column>
@@ -80,13 +74,7 @@ export default function Spaces() {
         </Column>
 
         <Column>
-          <Button
-            data-type="primary"
-            onClick={handleSaveClick}
-            disabled={isDownloadDisabled}
-          >
-            Скачать изображение
-          </Button>
+          <DownloadButton />
         </Column>
       </StyledEditWrapper>
     </>
@@ -111,7 +99,7 @@ const ChannelsList = styled.div`
   padding: 0 10px;
 `
 
-const DownloadButton = styled.button`
+const UpButton = styled.button`
   cursor: pointer;
   background: transparent;
   border: none;
