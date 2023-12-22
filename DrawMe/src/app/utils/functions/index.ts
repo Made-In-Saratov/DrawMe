@@ -1,4 +1,5 @@
 export { bytesToInt } from "@/utils/functions/bytesToInt"
+export { intToBytes } from "@/utils/functions/intToBytes"
 export { countSelectedChannels } from "@/utils/functions/countSelectedChannels"
 export {
   gammaCorrection,

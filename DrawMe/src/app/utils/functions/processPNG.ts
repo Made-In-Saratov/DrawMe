@@ -7,7 +7,7 @@ import readIDAT from "@/utils/functions/chunks/readIDAT"
 import readIHDR from "@/utils/functions/chunks/readIHDR"
 import readPLTE from "@/utils/functions/chunks/readPLTE"
 
-const textDecoder = new TextDecoder("utf-8")
+const decoder = new TextDecoder("utf-8")
 
 export function processPNG(data: ArrayBuffer): [IImage, number] {
   const byteArray = new Uint8Array(data)
@@ -135,7 +135,7 @@ export function processPNG(data: ArrayBuffer): [IImage, number] {
 
 function readChunkHeader(byteArray: Uint8Array, offset: number) {
   const chunkLength = bytesToInt(byteArray.slice(offset, offset + 4), 4)
-  const chunkType = textDecoder.decode(byteArray.slice(offset + 4, offset + 8))
+  const chunkType = decoder.decode(byteArray.slice(offset + 4, offset + 8))
   return { chunkLength, chunkType }
 }
 

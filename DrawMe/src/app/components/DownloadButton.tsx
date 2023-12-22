@@ -2,7 +2,8 @@ import styled from "styled-components"
 
 import { useAppSelector } from "@/store"
 import { text16Medium } from "@/utils/fonts"
-import usePpmSave from "@/utils/hooks/useImageSave"
+import usePngSave from "@/utils/hooks/usePngSave"
+import usePpmSave from "@/utils/hooks/usePpmSave"
 
 interface IDownloadButtonProps {
   className?: string
@@ -16,11 +17,12 @@ export default function DownloadButton({
   const isDownloadDisabled = !image
 
   const handlePpmSave = usePpmSave()
+  const handlePngSave = usePngSave()
 
   return (
     <Wrapper className={className} data-disabled={isDownloadDisabled}>
       <ButtonLeft onClick={handlePpmSave}>Скачать .ppm</ButtonLeft>
-      <ButtonRight>.png</ButtonRight>
+      <ButtonRight onClick={handlePngSave}>.png</ButtonRight>
     </Wrapper>
   )
 }
