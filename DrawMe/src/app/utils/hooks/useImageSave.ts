@@ -3,7 +3,7 @@ import { MouseEventHandler, useCallback } from "react"
 import { useAppSelector } from "@/store"
 import { countSelectedChannels } from "@/utils/functions"
 
-export default function useImageSave() {
+export default function usePpmSave() {
   const { space, channels, src: image } = useAppSelector(({ image }) => image)
 
   const handleClick = useCallback<MouseEventHandler<HTMLElement>>(() => {

@@ -21,10 +21,6 @@ import { calculateAntiAliasing } from "@/utils/functions/calculateAntiAliasing"
 import { parseInputValue } from "@/utils/functions/validateNumber"
 import { spaces } from "@/utils/spaces"
 
-interface IColorSquareProps {
-  color: number[]
-}
-
 export default function Lines() {
   const dispatch = useAppDispatch()
   const space = useAppSelector(({ image }) => image.space)
@@ -112,7 +108,7 @@ export default function Lines() {
           <Title>Цвет</Title>
           <SelectorWrapper>
             <ColorSquare
-              color={spaces[space].reverseConverter(channelValues)}
+              $color={spaces[space].reverseConverter(channelValues)}
             />
             {"RGB".split("").map((channel: string, idx: number) => {
               return (
@@ -213,6 +209,10 @@ const Title = styled.span`
   ${text16Medium}
 `
 
+interface IColorSquareProps {
+  $color: number[]
+}
+
 const ColorSquare = styled.span<IColorSquareProps>`
   width: 24px;
   height: 24px;
@@ -220,5 +220,5 @@ const ColorSquare = styled.span<IColorSquareProps>`
   border-radius: 4px;
   margin-right: 8px;
   background: ${props =>
-    `rgb(${props.color[0]}, ${props.color[1]}, ${props.color[2]})`};
+    `rgb(${props.$color[0]}, ${props.$color[1]}, ${props.$color[2]})`};
 `
