@@ -12,11 +12,9 @@ export default function encodeIDAT(
   width: number
 ) {
   const data = new Uint8ClampedArray(pixels.length + width * bytesPerPixel)
-  console.log(pixels)
   for (let i = 0; i < pixels.length; i += width * bytesPerPixel) {
     const scanline = pixels.slice(i, i + width * bytesPerPixel)
     const filterType = 0
-    console.log(bytesPerPixel)
     data.set([filterType, ...scanline], i + i / (width * bytesPerPixel))
   }
 
