@@ -7,11 +7,11 @@ Frontend application for DrawMe project
 First, install dependencies:
 
 ```
-yarn add
+pnpm install
 ```
 
 Then, run the application:
 
 ```
-yarn start
+pnpm start
 ```
