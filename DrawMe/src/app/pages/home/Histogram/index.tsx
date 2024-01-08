@@ -33,13 +33,13 @@ export default function Histogram() {
   const [histograms, setHistograms] = useState<number[][]>([[], [], []])
 
   const getChannelData = useCallback(
-    (channelNumber: number): number[] =>
+    (channelNumber: number) =>
       image?.pixels.filter((_, idx) => idx % 3 === channelNumber) ?? [],
     [image?.pixels]
   )
 
   const calculateHistogramData = useCallback(
-    (channelNumber: number): number[] => {
+    (channelNumber: number) => {
       const histogramData: number[] = new Array(256).fill(0)
       const channelData = getChannelData(channelNumber)
       channelData.forEach(value => {
@@ -51,7 +51,7 @@ export default function Histogram() {
     [getChannelData]
   )
 
-  const calculateAutocorrection = useCallback((): number[] => {
+  const calculateAutocorrection = useCallback(() => {
     if (!image?.pixels) return []
     const mins: number[] = []
     const maxs: number[] = []
@@ -78,8 +78,6 @@ export default function Histogram() {
         }
       })
     }
-    console.log("mins", mins)
-    console.log("maxs", maxs)
 
     const yMin = Math.min(...mins)
     const yMax = Math.max(...maxs)
@@ -115,21 +113,17 @@ export default function Histogram() {
   )
 
   useEffect(() => {
-    console.log(image?.pixels)
-  }, [image?.pixels])
-
-  useEffect(() => {
     const sum = countSelectedChannels(channels)
     const newHistograms: number[][] = [[], [], []]
-    if (sum !== 2) {
+    if (sum !== 2)
       channels.forEach((channel, index) => {
-        if (channel) {
-          newHistograms[index] = calculateHistogramData(index)
-        }
+        if (channel) newHistograms[index] = calculateHistogramData(index)
       })
-    }
+
     setHistograms(newHistograms)
   }, [calculateHistogramData, channels])
+
+  const isDisabled = image === null || countSelectedChannels(channels) === 0
 
   return (
     <>
@@ -175,7 +169,7 @@ export default function Histogram() {
         <Column>
           <Button
             data-type="primary"
-            disabled={false}
+            disabled={isDisabled}
             onClick={handleButtonClick}
           >
             Скорректировать
@@ -184,15 +178,13 @@ export default function Histogram() {
       </StyledEditWrapper>
 
       <HistogramSidebar>
-        {spaces[space].channels.map((channelName, index) => {
-          return (
-            <HistogramChart
-              key={channelName}
-              channelLabel={`Канал ${channelName}:`}
-              data={histograms[index]}
-            />
-          )
-        })}
+        {spaces[space].channels.map((channelName, index) => (
+          <HistogramChart
+            key={channelName}
+            channelLabel={`Канал ${channelName}`}
+            data={histograms[index]}
+          />
+        ))}
       </HistogramSidebar>
     </>
   )
@@ -235,14 +227,19 @@ const CorrectionControl = styled.div`
 `
 
 const HistogramSidebar = styled.div`
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 4px 8px 20px 0px rgba(16, 0, 65, 0.15);
+  backdrop-filter: blur(16px);
+
   display: flex;
   flex-direction: column;
   gap: 15px;
+  padding: 20px;
+
   position: fixed;
   top: 50%;
   right: 20px;
+
   transform: translateY(-50%);
-  padding: 20px;
-  background: white;
-  border-radius: 25px;
 `
