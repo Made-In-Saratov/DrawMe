@@ -1,5 +1,3 @@
-import correctBrightness from "./correctBrightness"
-
 type AutocorrectionLimitsT = {
   min: number
   max: number

@@ -29,7 +29,12 @@ export default function Home({ setTab }: IHomeProps) {
 
       <MainWrapper>
         <h1>Draw Me</h1>
-        <p>Лучший редактор изображений для спортивного программирования.</p>
+        <p>Онлайн редактор изображений прямо в вашем браузере.</p>
+        <p>
+          Изменяйте гамму, цветовые пространства, размеры и многое другое. Все
+          вычисления происходят на вашем компьютере, поэтому доступ к
+          фотографиям не получит никто, кроме вас.
+        </p>
         <Button data-type="primary" onClick={handleClick}>
           {isLoading ? "Загрузка..." : "Загрузить файл"}
           <input {...inputProps} />
@@ -65,8 +70,18 @@ const MainWrapper = styled.div`
   }
 
   > p {
-    margin: 0 0 32px 0;
+    margin: 0;
+    max-width: 680px;
+    text-align: center;
     ${text16};
+  }
+
+  > p:first-of-type {
+    margin-bottom: 10px;
+  }
+
+  > p:last-of-type {
+    margin-bottom: 32px;
   }
 `
 
