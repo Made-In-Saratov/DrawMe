@@ -98,7 +98,7 @@ export default function Lines() {
   return (
     <>
       <Helmet>
-        <title>Отрисовка линий</title>
+        <title>Рисование линий</title>
       </Helmet>
 
       <Canvas onClickHandler={getCursorPosition} />
@@ -110,21 +110,19 @@ export default function Lines() {
             <ColorSquare
               $color={spaces[space].reverseConverter(channelValues)}
             />
-            {"RGB".split("").map((channel: string, idx: number) => {
-              return (
-                <Selector key={channel}>
-                  <span>{channel}:</span>
-                  <Input
-                    value={channelValues[idx]}
-                    onChange={e => handleColorInput(e, idx)}
-                    placeholder="0"
-                    type="number"
-                    min={0}
-                    max={255}
-                  />
-                </Selector>
-              )
-            })}
+            {"RGB".split("").map((channel: string, idx: number) => (
+              <Selector key={channel}>
+                <span>{channel}:</span>
+                <Input
+                  value={channelValues[idx]}
+                  onChange={e => handleColorInput(e, idx)}
+                  placeholder="0"
+                  type="number"
+                  min={0}
+                  max={255}
+                />
+              </Selector>
+            ))}
           </SelectorWrapper>
         </OptionSelectorWrapper>
         <OptionSelectorWrapper>
