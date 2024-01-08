@@ -50,6 +50,8 @@ export default function Dithering() {
     }
   }, [bitDepth, dispatch, ditheringAlgorithm, image])
 
+  const isDisabled = image === null
+
   return (
     <>
       <Helmet>
@@ -63,7 +65,7 @@ export default function Dithering() {
           setActiveItem={handleItemChange}
         />
         <BitDepthSelector value={bitDepth} onChange={handleSliderChange} />
-        <Button data-type="primary" onClick={handleApply}>
+        <Button data-type="primary" onClick={handleApply} disabled={isDisabled}>
           Применить
         </Button>
 
