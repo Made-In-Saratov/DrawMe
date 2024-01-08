@@ -95,6 +95,9 @@ const Button = styled.button`
   position: relative;
 
   > svg {
+    width: 24px;
+    height: 24px;
+
     path {
       fill: var(--dark-blue);
       transition: fill var(--transition-duration) var(--transition-function);
