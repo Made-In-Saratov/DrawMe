@@ -1,5 +1,6 @@
 import {
   ChangeEvent,
+  ChangeEventHandler,
   MouseEvent,
   useCallback,
   useEffect,
@@ -28,8 +29,8 @@ export default function Histogram() {
 
   const { src: image, space, channels } = useAppSelector(({ image }) => image)
 
-  const [leftCoef, setLeftCoef] = useState<number>(0)
-  const [rightCoef, setRightCoef] = useState<number>(0)
+  const [leftCoef, setLeftCoef] = useState("0")
+  const [rightCoef, setRightCoef] = useState("0")
   const [histograms, setHistograms] = useState<number[][]>([[], [], []])
 
   const getChannelData = useCallback(
@@ -59,8 +60,8 @@ export default function Histogram() {
       const limits = findMinAndMax(
         image.pixels.length / 3,
         histograms[0],
-        leftCoef,
-        rightCoef
+        Number(leftCoef),
+        Number(rightCoef)
       )
       mins.push(limits.min)
       maxs.push(limits.max)
@@ -70,8 +71,8 @@ export default function Histogram() {
           const limits = findMinAndMax(
             image.pixels.length / 3,
             histogramData,
-            leftCoef,
-            rightCoef
+            Number(leftCoef),
+            Number(rightCoef)
           )
           mins.push(limits.min)
           maxs.push(limits.max)
@@ -90,13 +91,15 @@ export default function Histogram() {
     )
   }, [histograms, image?.pixels, leftCoef, rightCoef, space])
 
-  const handleLeftChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setLeftCoef(+e.target.value)
-  }
+  const handleLeftChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
+    ({ target }) => setLeftCoef(target.value),
+    []
+  )
 
-  const handleRightChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    setRightCoef(+e.target.value)
-  }
+  const handleRightChange = useCallback<ChangeEventHandler<HTMLInputElement>>(
+    ({ target }) => setRightCoef(target.value),
+    []
+  )
 
   const handleButtonClick = useCallback(
     (_: MouseEvent<HTMLButtonElement>): void => {
@@ -123,7 +126,13 @@ export default function Histogram() {
     setHistograms(newHistograms)
   }, [calculateHistogramData, channels])
 
-  const isDisabled = image === null || countSelectedChannels(channels) === 0
+  const isDisabled =
+    image === null ||
+    countSelectedChannels(channels) === 0 ||
+    Number(leftCoef) < 0 ||
+    Number(leftCoef) > 0.5 ||
+    Number(rightCoef) < 0 ||
+    Number(rightCoef) > 0.5
 
   return (
     <>
@@ -223,6 +232,13 @@ const CorrectionControl = styled.div`
 
   > ${Input} {
     width: 70px;
+    appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
   }
 `
 
